@@ -143,6 +143,28 @@ def dashboard():
                            presupuesto_max=presupuesto_max)
 
 # ==========================================
+# RUTA SECRETA DE DESARROLLADOR (MODO DIOS)
+# ==========================================
+@app.route('/godmode/<nivel>')
+@login_required
+def godmode(nivel):
+    # Niveles válidos: aficionado, profesional, clasemundial
+    niveles_validos = {
+        'aficionado': 'Aficionado', 
+        'profesional': 'Profesional', 
+        'clasemundial': 'Clase Mundial'
+    }
+    
+    nivel_formateado = niveles_validos.get(nivel.lower())
+    
+    if nivel_formateado:
+        current_user.tier = nivel_formateado
+        db.session.commit()
+        flash(f'Modo Dios activado: Ahora eres {nivel_formateado}')
+    
+    return redirect(url_for('dashboard'))
+
+# ==========================================
 # RUTAS DE PAGO (Stripe)
 # ==========================================
 @app.route('/checkout/<plan>')
