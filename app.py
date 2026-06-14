@@ -36,6 +36,11 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# ¡LA CLAVE ESTÁ AQUÍ! Sacamos la creación de la base de datos al nivel global
+# para que Gunicorn (Render) lo lea obligatoriamente al arrancar la aplicación.
+with app.app_context():
+    db.create_all()
+
 # ==========================================
 # RUTAS PÚBLICAS
 # ==========================================
@@ -218,6 +223,4 @@ def pago_exitoso():
     return render_template('pago_exitoso.html', plan=current_user.tier)
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

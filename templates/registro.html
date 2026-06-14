@@ -2,22 +2,67 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro | Scouting PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta | Scouting PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Rajdhani', sans-serif; }</style>
 </head>
-<body class="bg-gray-950 flex items-center justify-center min-h-screen">
-    <div class="bg-gray-900 p-8 rounded-xl border border-gray-800 w-96 text-white">
-        <h2 class="text-2xl font-bold mb-6 text-center text-green-500">Crear Cuenta</h2>
-        <form method="POST" action="/registro" class="space-y-4">
-            <input type="text" name="username" placeholder="Nombre de usuario" required class="w-full bg-gray-800 border border-gray-700 p-3 rounded">
-            <input type="password" name="password" placeholder="Contraseña" required class="w-full bg-gray-800 border border-gray-700 p-3 rounded">
-            <select name="tier" class="w-full bg-gray-800 border border-gray-700 p-3 rounded text-gray-300">
-                <option value="Aficionado">Plan Aficionado (€4.99)</option>
-                <option value="Profesional">Plan Profesional (€9.99)</option>
-                <option value="Clase Mundial">Plan Clase Mundial (€49.99)</option>
-            </select>
-            <button type="submit" class="w-full bg-green-500 text-black font-bold p-3 rounded hover:bg-green-400">Registrarse</button>
+<body class="bg-gray-950 text-white antialiased min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+        
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+
+        <div class="text-center mb-8 relative z-10">
+            <a href="/" class="inline-block hover:opacity-80 transition">
+                <h1 class="text-3xl font-black tracking-tighter">SCOUTING<span class="text-green-500">PRO</span></h1>
+            </a>
+            <p class="text-gray-400 mt-2 text-sm uppercase tracking-widest font-bold">Registro de Director Deportivo</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm font-bold text-center">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/registro" class="space-y-6 relative z-10">
+            
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Nombre de Usuario (Mánager)</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <input type="text" name="username" required class="w-full bg-gray-950 text-white border border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors" placeholder="Ej: PepGuardiola">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Contraseña Segura</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <input type="password" name="password" required class="w-full bg-gray-950 text-white border border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors" placeholder="••••••••">
+                </div>
+            </div>
+
+            <input type="hidden" name="tier" value="Aficionado">
+
+            <button type="submit" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-black py-3 rounded-lg shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all transform hover:-translate-y-0.5 text-lg">
+                CREAR CUENTA
+            </button>
         </form>
+
+        <div class="mt-8 text-center text-gray-400 text-sm relative z-10">
+            ¿Ya tienes acceso? <a href="/login" class="text-green-400 hover:text-white font-bold transition">Inicia Sesión aquí</a>
+        </div>
     </div>
+
 </body>
 </html>
