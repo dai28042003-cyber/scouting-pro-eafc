@@ -5,7 +5,7 @@ import stripe
 from models import User
 
 # Importamos la base de datos desde app.py (evitando importaciones circulares)
-from app import db 
+from models import db 
 
 auth_bp = Blueprint('auth', __name__)
 

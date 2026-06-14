@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 import pandas as pd
-from app import db
+from models import db
 
 carrera_bp = Blueprint('carrera', __name__)
 
