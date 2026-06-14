@@ -30,7 +30,8 @@ def registro():
         db.session.commit()
         
         login_user(nuevo_usuario)
-        return redirect(url_for('carrera.dashboard')) # Apunta al nuevo módulo
+        # Redirige al nuevo Hub Central
+        return redirect(url_for('auth.vestuario')) 
         
     return render_template('registro.html')
 
@@ -43,7 +44,8 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect(url_for('carrera.dashboard')) # Apunta al nuevo módulo
+            # Redirige al nuevo Hub Central
+            return redirect(url_for('auth.vestuario')) 
         flash('Datos incorrectos')
     return render_template('login.html')
 
@@ -84,7 +86,7 @@ def checkout(plan):
         return redirect(checkout_session.url)
     except Exception as e:
         flash(f"Error al conectar con la pasarela de pago: {e}")
-        return redirect(url_for('carrera.dashboard'))
+        return redirect(url_for('auth.vestuario'))
 
 @auth_bp.route('/pago-exitoso')
 @login_required
@@ -100,3 +102,11 @@ def pago_exitoso():
     db.session.commit()
     
     return render_template('pago_exitoso.html', plan=current_user.tier)
+
+# ==========================================
+# EL VESTUARIO (HUB CENTRAL)
+# ==========================================
+@auth_bp.route('/vestuario')
+@login_required
+def vestuario():
+    return render_template('vestuario.html', tier=current_user.tier)
