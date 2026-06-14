@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>¡Pago Completado! | Scouting PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-white font-sans flex items-center justify-center min-h-screen">
+    <div class="bg-gray-900 border-2 border-green-500 p-10 rounded-2xl max-w-md w-full text-center shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+        <div class="w-20 h-20 bg-green-500/10 text-green-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h2 class="text-3xl font-black uppercase tracking-tight mb-2">¡Acceso Concedido!</h2>
+        <p class="text-gray-400 mb-6">Tu cuenta ha sido actualizada con éxito al nivel <span class="text-green-400 font-bold">{{ plan }}</span>.</p>
+        <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 mb-8">
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Beneficio Técnico</p>
+            <p class="text-sm text-gray-300 mt-1">Algoritmo predictivo y Ganga Score desbloqueados en tiempo real.</p>
+        </div>
+        <a href="/dashboard" class="block w-full bg-green-500 hover:bg-green-400 text-gray-950 font-black py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5">
+            ENTRAR AL PANEL DE SCOUTING
+        </a>
+    </div>
+</body>
+</html>
