@@ -36,7 +36,7 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ¡LA CLAVE ESTÁ AQUÍ! Sacamos la creación de la base de datos al nivel global
+# Sacamos la creación de la base de datos al nivel global
 # para que Gunicorn (Render) lo lea obligatoriamente al arrancar la aplicación.
 with app.app_context():
     db.create_all()
@@ -146,6 +146,26 @@ def dashboard():
                            graficos=graficos,
                            edad_max=edad_max,
                            presupuesto_max=presupuesto_max)
+
+# ==========================================
+# RUTA DEL PERFIL INDIVIDUAL DEL JUGADOR
+# ==========================================
+@app.route('/jugador/<nombre>')
+@login_required
+def perfil_jugador(nombre):
+    try:
+        df = pd.read_csv('scouting_premium.csv')
+        # Buscamos la fila exacta donde el nombre coincide
+        datos_jugador = df[df['Nombre'] == nombre].to_dict(orient='records')
+        
+        if not datos_jugador:
+            flash("Jugador no encontrado en la base de datos.")
+            return redirect(url_for('dashboard'))
+            
+        return render_template('perfil.html', jugador=datos_jugador[0], tier=current_user.tier)
+    except Exception as e:
+        print(f"Error al cargar perfil: {e}")
+        return redirect(url_for('dashboard'))
 
 # ==========================================
 # RUTA SECRETA DE DESARROLLADOR (MODO DIOS)
