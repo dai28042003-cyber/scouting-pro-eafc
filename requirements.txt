@@ -1,0 +1,8 @@
+Flask
+pandas
+numpy
+Flask-SQLAlchemy
+Flask-Login
+Werkzeug
+stripe
+gunicorn
