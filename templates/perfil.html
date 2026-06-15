@@ -5,6 +5,8 @@
     <title>{{ jugador['Nombre'] }} | Scouting PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Cargamos la librería de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>body { font-family: 'Rajdhani', sans-serif; }</style>
 </head>
 <body class="bg-gray-950 text-white antialiased min-h-screen">
@@ -41,10 +43,10 @@
                     
                     <div class="flex flex-wrap items-center gap-3 text-sm font-bold text-gray-400 uppercase tracking-wider mb-6">
                         <span class="flex items-center bg-gray-950 px-3 py-1 rounded-md border border-gray-800">
-                            ⚽ {{ jugador.get('Equipo', 'Equipo Desconocido') }}
+                            ⚽ {{ jugador.get('Equipo', 'Desconocido') }}
                         </span>
                         <span class="flex items-center bg-gray-950 px-3 py-1 rounded-md border border-gray-800">
-                            🌍 {{ jugador.get('Nacionalidad', 'Nacionalidad Desconocida') }}
+                            🌍 {{ jugador.get('Nacionalidad', 'Desconocido') }}
                         </span>
                     </div>
                     
@@ -65,23 +67,33 @@
                 </div>
             </div>
 
-            <div class="mt-8 border-t border-gray-700/50 pt-8">
+            <!-- Zona Analítica (Desbloqueada para VIP, Bloqueada para Aficionado) -->
+            <div class="mt-10 border-t border-gray-700/50 pt-8">
                 <h3 class="text-xl font-bold uppercase text-gray-400 mb-6 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                     Proyección del Algoritmo
                 </h3>
 
                 {% if tier != 'Aficionado' %}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="bg-green-500/10 border border-green-500/30 p-6 rounded-xl">
                         <span class="block text-sm text-green-400 uppercase font-bold tracking-wider mb-2">Ganga Score</span>
                         <div class="text-5xl font-black text-white">{{ jugador.get('Ganga Score', 'N/A') }}<span class="text-xl text-gray-500">/10</span></div>
-                        <p class="text-sm font-sans text-gray-400 mt-2">Relación calidad/precio basada en el mercado global y crecimiento potencial.</p>
+                        <p class="text-sm font-sans text-gray-400 mt-2">Relación calidad/precio basada en el mercado global.</p>
                     </div>
                     <div class="bg-blue-500/10 border border-blue-500/30 p-6 rounded-xl">
                         <span class="block text-sm text-blue-400 uppercase font-bold tracking-wider mb-2">ROI Estimado</span>
                         <div class="text-5xl font-black text-white">{{ jugador.get('ROI (%)', 'N/A') }}%</div>
-                        <p class="text-sm font-sans text-gray-400 mt-2">Retorno de inversión calculado si se vende al alcanzar su potencial máximo.</p>
+                        <p class="text-sm font-sans text-gray-400 mt-2">Retorno de inversión calculado si se vende al alcanzar su potencial.</p>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Crecimiento (Solo VIP) -->
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800">
+                    <span class="block text-sm text-gray-500 uppercase font-bold tracking-wider mb-4">Curva de Desarrollo Proyectada</span>
+                    <div class="w-full h-48">
+                        <canvas id="growthChart"></canvas>
                     </div>
                 </div>
                 
@@ -89,30 +101,86 @@
                 <div class="bg-gray-950 border border-gray-800 p-8 rounded-xl text-center relative overflow-hidden">
                     <div class="absolute inset-0 flex items-center justify-center bg-gray-950/85 z-10 flex-col backdrop-blur-md">
                         <svg class="w-12 h-12 text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        <h4 class="text-xl font-bold mb-2">Análisis Predictivo Bloqueado</h4>
-                        <p class="text-sm text-gray-400 mb-6 font-sans max-w-md">Sube de nivel para ver el Ganga Score exacto y la rentabilidad (ROI) financiera de este jugador.</p>
+                        <h4 class="text-xl font-bold mb-2">Análisis y Gráficos Bloqueados</h4>
+                        <p class="text-sm text-gray-400 mb-6 font-sans max-w-md">Sube de nivel para ver la curva de crecimiento dinámico, el Ganga Score y el ROI.</p>
                         
                         <a href="/godmode/clasemundial" class="bg-green-500 hover:bg-green-400 text-black px-8 py-3 rounded-full font-black uppercase tracking-wider text-sm transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)] hover:scale-105">
                             Desbloquear con Modo Dios
                         </a>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-6 opacity-30 select-none blur-sm pointer-events-none">
+                    <div class="grid grid-cols-2 gap-6 opacity-30 select-none blur-sm pointer-events-none mb-6">
                         <div>
                             <span class="block text-sm uppercase font-bold mb-2">Ganga Score</span>
                             <div class="text-5xl font-black">9.8/10</div>
                         </div>
                         <div>
-                            <span class="block text-sm uppercase font-bold mb-2">ROI a 3 temp.</span>
+                            <span class="block text-sm uppercase font-bold mb-2">ROI Estimado</span>
                             <div class="text-5xl font-black">450%</div>
                         </div>
                     </div>
                 </div>
                 {% endif %}
             </div>
-
         </div>
     </main>
+
+    <!-- Lógica del Gráfico (Se ejecuta solo si la vista está desbloqueada) -->
+    {% if tier != 'Aficionado' %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            // Recogemos los datos exactos del jugador
+            const mediaActual = {{ jugador['Media'] }};
+            const potencial = {{ jugador['Potencial'] }};
+            const edadActual = {{ jugador['Edad'] }};
+            
+            // Calculamos puntos intermedios realistas para hacer la curva
+            const diferencia = potencial - mediaActual;
+            const fase1 = mediaActual + Math.round(diferencia * 0.4);
+            const fase2 = mediaActual + Math.round(diferencia * 0.8);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [edadActual + ' años (Hoy)', edadActual + 1 + ' años', edadActual + 2 + ' años', edadActual + 3 + ' años (Techo)'],
+                    datasets: [{
+                        label: 'Proyección de Media (OVR)',
+                        data: [mediaActual, fase1, fase2, potencial],
+                        borderColor: '#22c55e', // Verde ScoutingPRO
+                        backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#22c55e',
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        tension: 0.4, // Suaviza la línea
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            min: mediaActual - 2,
+                            max: potencial + 2,
+                            grid: { color: 'rgba(55, 65, 81, 0.5)' }, // Gris tenue
+                            ticks: { color: '#9ca3af', font: { family: 'Rajdhani', weight: 'bold' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9ca3af', font: { family: 'Rajdhani', weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    {% endif %}
 
 </body>
 </html>
