@@ -37,8 +37,8 @@
 
         <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto w-full">
             
-            <a href="/dashboard" class="group relative bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-3xl p-8 hover:border-green-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] hover:-translate-y-2 overflow-hidden flex flex-col h-full">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl group-hover:bg-green-500/20 transition-all"></div>
+            <div class="group relative bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-3xl p-8 hover:border-green-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] overflow-hidden flex flex-col h-full">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl group-hover:bg-green-500/20 transition-all pointer-events-none"></div>
                 
                 <div class="w-16 h-16 bg-gray-950 border border-gray-700 rounded-2xl flex items-center justify-center mb-6 z-10 group-hover:border-green-500/50 transition-colors">
                     <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
@@ -47,13 +47,19 @@
                 <h3 class="text-3xl font-black uppercase tracking-tight mb-4 z-10">Modo Carrera</h3>
                 <p class="text-gray-400 font-sans mb-8 flex-1 z-10">Construye tu dinastía. Encuentra a las mejores promesas, calcula su potencial y domina el mercado de fichajes con el Ganga Score.</p>
                 
-                <div class="w-full bg-gray-800 group-hover:bg-green-500 text-white group-hover:text-black text-center py-4 rounded-xl font-black uppercase tracking-widest transition-colors z-10">
-                    Entrar a Base de Datos
+                <div class="flex flex-col gap-3 z-10 w-full mt-auto">
+                    <a href="/dashboard" class="w-full bg-gray-800 group-hover:bg-green-500 text-white group-hover:text-black text-center py-3 rounded-xl font-black uppercase tracking-widest transition-colors shadow-lg">
+                        Base de Datos Global
+                    </a>
+                    <a href="/mis-promesas" class="w-full bg-gray-950 border border-gray-700 hover:border-green-500 text-gray-300 hover:text-green-400 text-center py-3 rounded-xl font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        Mi Libreta de Ojeo
+                    </a>
                 </div>
-            </a>
+            </div>
 
-            <a href="/fut/dashboard" class="group relative bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-3xl p-8 hover:border-yellow-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] hover:-translate-y-2 overflow-hidden flex flex-col h-full">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-yellow-500/10 rounded-full blur-3xl group-hover:bg-yellow-500/20 transition-all"></div>
+            <div class="group relative bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-3xl p-8 hover:border-yellow-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] overflow-hidden flex flex-col h-full">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-yellow-500/10 rounded-full blur-3xl group-hover:bg-yellow-500/20 transition-all pointer-events-none"></div>
                 
                 <div class="absolute top-8 right-8 bg-yellow-500 text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest z-10 shadow-lg">
                     Nuevo
@@ -66,14 +72,16 @@
                 <h3 class="text-3xl font-black uppercase tracking-tight mb-4 z-10">Ultimate Team</h3>
                 <p class="text-gray-400 font-sans mb-8 flex-1 z-10">Multiplica tus monedas. Herramientas de tradeo avanzadas, alertas de precio en vivo y soluciones de SBC automáticas.</p>
                 
-                <div class="w-full bg-gray-800 group-hover:bg-yellow-500 text-white group-hover:text-black text-center py-4 rounded-xl font-black uppercase tracking-widest transition-colors z-10 flex items-center justify-center gap-2">
-                    {% if tier == 'Clase Mundial' or tier == 'Trader Élite' %}
-                        Acceder al Mercado Central
-                    {% else %}
-                        🔒 Requiere Nivel Trader
-                    {% endif %}
+                <div class="flex flex-col z-10 w-full mt-auto">
+                    <a href="/fut/dashboard" class="w-full bg-gray-800 group-hover:bg-yellow-500 text-white group-hover:text-black text-center py-3 rounded-xl font-black uppercase tracking-widest transition-colors shadow-lg flex items-center justify-center gap-2">
+                        {% if tier == 'Clase Mundial' or tier == 'Trader Élite' %}
+                            Acceder al Mercado Central
+                        {% else %}
+                            🔒 Requiere Nivel Trader
+                        {% endif %}
+                    </a>
                 </div>
-            </a>
+            </div>
 
         </div>
     </main>

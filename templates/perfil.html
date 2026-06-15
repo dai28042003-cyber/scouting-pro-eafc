@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{{ jugador['Nombre'] }} | Scouting PRO</title>
+    <title>{{ jugador.get('Nombre', 'Perfil') }} | Scouting PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&display=swap" rel="stylesheet">
     <!-- Cargamos la librería de gráficos -->
@@ -21,25 +21,54 @@
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-6 mt-8">
+    <!-- Mensajes de Notificación -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="max-w-4xl mx-auto mt-4 px-6 z-50 relative">
+                <div class="bg-gray-900 border border-green-500 text-green-400 px-4 py-3 rounded-lg text-sm font-bold flex items-center justify-between shadow-lg">
+                    <span>{{ messages[0] }}</span>
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="max-w-4xl mx-auto p-6 mt-4">
         <div class="bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
             
             <div class="absolute -right-20 -top-20 opacity-5 pointer-events-none">
-                <h2 class="text-[15rem] font-black leading-none">{{ jugador['Media'] }}</h2>
+                <h2 class="text-[15rem] font-black leading-none">{{ jugador.get('Media', 0) }}</h2>
             </div>
 
             <div class="flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
                 
                 <div class="w-48 h-64 bg-gray-950 border-2 border-gray-600 rounded-2xl flex flex-col items-center justify-center shadow-inner relative flex-shrink-0">
                     <div class="absolute top-4 left-4 flex flex-col items-center">
-                        <span class="font-black text-4xl text-yellow-500 leading-none">{{ jugador['Media'] }}</span>
+                        <span class="font-black text-4xl text-yellow-500 leading-none">{{ jugador.get('Media', 0) }}</span>
                         <span class="text-sm font-bold text-gray-400 uppercase mt-1">{{ jugador.get('Posición', 'POS') }}</span>
                     </div>
                     <svg class="w-24 h-24 text-gray-700 mt-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 </div>
 
                 <div class="flex-1 w-full">
-                    <h2 class="text-5xl md:text-6xl font-black uppercase tracking-tight mb-2 leading-none">{{ jugador['Nombre'] }}</h2>
+                    
+                    <div class="flex items-center justify-between mb-2 gap-4">
+                        <h2 class="text-5xl md:text-6xl font-black uppercase tracking-tight leading-none truncate">{{ jugador.get('Nombre', 'Desconocido') }}</h2>
+                        
+                        <!-- BOTÓN DE FAVORITOS -->
+                        <form action="/favorito/{{ jugador.get('Nombre', '') }}" method="POST" class="flex-shrink-0">
+                            {% if es_favorito %}
+                                <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-yellow-400 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.4)]" title="Dejar de seguir">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    Siguiendo
+                                </button>
+                            {% else %}
+                                <button type="submit" class="bg-gray-800 text-gray-400 border border-gray-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-700 hover:text-white transition-colors" title="Añadir a seguimiento">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                                    Guardar
+                                </button>
+                            {% endif %}
+                        </form>
+                    </div>
                     
                     <div class="flex flex-wrap items-center gap-3 text-sm font-bold text-gray-400 uppercase tracking-wider mb-6">
                         <span class="flex items-center bg-gray-950 px-3 py-1 rounded-md border border-gray-800">
@@ -53,11 +82,11 @@
                     <div class="grid grid-cols-2 gap-4 mt-6">
                         <div class="bg-gray-950 p-4 rounded-xl border border-gray-800">
                             <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Edad Actual</span>
-                            <span class="text-2xl font-black">{{ jugador['Edad'] }} Años</span>
+                            <span class="text-2xl font-black">{{ jugador.get('Edad', 0) }} Años</span>
                         </div>
                         <div class="bg-gray-950 p-4 rounded-xl border border-gray-800">
                             <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Potencial Máximo</span>
-                            <span class="text-2xl font-black text-yellow-500">{{ jugador['Potencial'] }} (+{{ jugador['Margen de Crecimiento'] }})</span>
+                            <span class="text-2xl font-black text-yellow-500">{{ jugador.get('Potencial', 0) }} (+{{ jugador.get('Margen de Crecimiento', 0) }})</span>
                         </div>
                         <div class="col-span-2 bg-gray-950 p-4 rounded-xl border border-gray-800">
                             <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Valor de Mercado Actual</span>
@@ -131,10 +160,11 @@
         document.addEventListener("DOMContentLoaded", function() {
             const ctx = document.getElementById('growthChart').getContext('2d');
             
-            // Recogemos los datos exactos del jugador
-            const mediaActual = {{ jugador['Media'] }};
-            const potencial = {{ jugador['Potencial'] }};
-            const edadActual = {{ jugador['Edad'] }};
+            // TRUCO: Envolvemos en comillas para evitar errores del editor de código
+            // y usamos Number() para que JavaScript lo entienda como un valor matemático.
+            const mediaActual = Number("{{ jugador.get('Media', 70) }}");
+            const potencial = Number("{{ jugador.get('Potencial', 80) }}");
+            const edadActual = Number("{{ jugador.get('Edad', 18) }}");
             
             // Calculamos puntos intermedios realistas para hacer la curva
             const diferencia = potencial - mediaActual;
@@ -144,7 +174,7 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [edadActual + ' años (Hoy)', edadActual + 1 + ' años', edadActual + 2 + ' años', edadActual + 3 + ' años (Techo)'],
+                    labels: [edadActual + ' años (Hoy)', (edadActual + 1) + ' años', (edadActual + 2) + ' años', (edadActual + 3) + ' años (Techo)'],
                     datasets: [{
                         label: 'Proyección de Media (OVR)',
                         data: [mediaActual, fase1, fase2, potencial],
@@ -180,7 +210,6 @@
             });
         });
     </script>
-    {% endif %}
 
 </body>
 </html>
