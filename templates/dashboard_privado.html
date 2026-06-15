@@ -11,7 +11,7 @@
 </head>
 <body class="bg-gray-950 text-white antialiased min-h-screen flex flex-col">
 
-    <nav class="bg-gray-900 border-b border-gray-800 p-4">
+    <nav class="bg-gray-900 border-b border-gray-800 p-4 sticky top-0 z-50 shadow-xl">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/vestuario" class="hover:opacity-80 transition-opacity">
                 <h1 class="text-2xl font-black tracking-tighter">SCOUTING<span class="text-green-500">PRO</span></h1>
@@ -20,7 +20,7 @@
             <div class="flex items-center gap-4 sm:gap-6">
                 {% if tier != 'Clase Mundial' %}
                 <a href="/godmode/clasemundial" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest hover:scale-105 transition shadow-[0_0_15px_rgba(234,179,8,0.3)] hidden sm:inline-block">
-                    ↑ Subir a VIP (Test)
+                    ↑ Subir a VIP
                 </a>
                 {% endif %}
 
@@ -38,14 +38,62 @@
     </nav>
 
     <main class="max-w-7xl mx-auto p-6 flex-1 w-full mt-6">
-        <div class="mb-10">
-            <h2 class="text-3xl font-black uppercase tracking-wide">Base de Datos de Promesas</h2>
-            <p class="text-gray-400 mt-2 font-sans">Temporada 2026. Mostrando los perfiles más rentables del mercado actual.</p>
+        <div class="mb-8">
+            <h2 class="text-3xl font-black uppercase tracking-wide">Base de Datos Global</h2>
+            <p class="text-gray-400 mt-2 font-sans">Temporada 2026. Filtra y encuentra a tu próxima estrella.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl mb-8 shadow-xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                
+                <div class="md:col-span-1">
+                    <label class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Buscar Jugador</label>
+                    <div class="relative">
+                        <input type="text" id="searchName" placeholder="Ej. Mastantuono..." class="w-full bg-gray-950 border border-gray-700 text-white rounded-xl px-4 py-3 pl-10 focus:outline-none focus:border-green-500 transition-colors font-sans">
+                        <svg class="w-5 h-5 text-gray-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Posición</label>
+                    <select id="posFilter" class="w-full bg-gray-950 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 transition-colors appearance-none font-bold">
+                        <option value="ALL">Cualquiera</option>
+                        <option value="POR">Portero (POR)</option>
+                        <option value="DFC">Defensa Central (DFC)</option>
+                        <option value="LD">Lateral Derecho (LD)</option>
+                        <option value="LI">Lateral Izquierdo (LI)</option>
+                        <option value="MCD">Pivote (MCD)</option>
+                        <option value="MC">Mediocentro (MC)</option>
+                        <option value="MCO">Mediapunta (MCO)</option>
+                        <option value="ED">Extremo Derecho (ED)</option>
+                        <option value="EI">Extremo Izquierdo (EI)</option>
+                        <option value="DC">Delantero (DC)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Edad Máxima (<span id="edadValor" class="text-green-400">23</span>)</label>
+                    <input type="range" id="edadFilter" min="15" max="25" value="23" class="w-full mt-3 accent-green-500 cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-gray-600 mt-1 font-bold"><span>15</span><span>25</span></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Potencial Mínimo (<span id="potValor" class="text-yellow-500">80</span>)</label>
+                    <input type="range" id="potFilter" min="80" max="95" value="80" class="w-full mt-3 accent-yellow-500 cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-gray-600 mt-1 font-bold"><span>80</span><span>95</span></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="playersGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {% for jugador in jugadores %}
-            <a href="{{ url_for('carrera.perfil_jugador', nombre=jugador['Nombre']) }}" class="block bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-t-[2rem] rounded-b-xl p-4 relative overflow-hidden shadow-2xl hover:scale-105 hover:border-green-500/50 transition-all cursor-pointer group">
+            <a href="{{ url_for('carrera.perfil_jugador', nombre=jugador['Nombre']) }}" 
+               class="player-card block bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-t-[2rem] rounded-b-xl p-4 relative overflow-hidden shadow-2xl hover:scale-105 hover:border-green-500/50 transition-all cursor-pointer group"
+               data-nombre="{{ jugador['Nombre']|lower }}"
+               data-posicion="{{ jugador.get('Posición', 'POS') }}"
+               data-edad="{{ jugador['Edad'] }}"
+               data-potencial="{{ jugador['Potencial'] }}">
                 
                 <div class="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
@@ -100,6 +148,76 @@
             </a>
             {% endfor %}
         </div>
+        
+        <div id="noResults" class="hidden text-center mt-20">
+            <svg class="w-16 h-16 text-gray-700 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h3 class="text-2xl font-bold uppercase text-gray-400">Ningún jugador cumple los filtros</h3>
+            <p class="text-gray-500 mt-2 font-sans">Intenta bajar el potencial o subir la edad máxima.</p>
+        </div>
     </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchName = document.getElementById('searchName');
+            const posFilter = document.getElementById('posFilter');
+            const edadFilter = document.getElementById('edadFilter');
+            const potFilter = document.getElementById('potFilter');
+            const edadValor = document.getElementById('edadValor');
+            const potValor = document.getElementById('potValor');
+            const playerCards = document.querySelectorAll('.player-card');
+            const noResults = document.getElementById('noResults');
+
+            function applyFilters() {
+                const search = searchName.value.toLowerCase();
+                const pos = posFilter.value;
+                const maxEdad = parseInt(edadFilter.value);
+                const minPot = parseInt(potFilter.value);
+                
+                let visibleCount = 0;
+
+                playerCards.forEach(card => {
+                    const cardName = card.dataset.nombre;
+                    const cardPos = card.dataset.posicion;
+                    const cardEdad = parseInt(card.dataset.edad);
+                    const cardPot = parseInt(card.dataset.potencial);
+
+                    // Comprobamos si el jugador pasa todos los filtros
+                    const matchName = cardName.includes(search);
+                    const matchPos = pos === 'ALL' || cardPos === pos;
+                    const matchEdad = cardEdad <= maxEdad;
+                    const matchPot = cardPot >= minPot;
+
+                    if (matchName && matchPos && matchEdad && matchPot) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Si no queda ninguna carta viva, mostramos el mensaje de error
+                if (visibleCount === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+
+            // Detectar cuando el usuario mueve las barras para actualizar el número verde/amarillo
+            edadFilter.addEventListener('input', function() {
+                edadValor.textContent = this.value;
+                applyFilters();
+            });
+
+            potFilter.addEventListener('input', function() {
+                potValor.textContent = this.value;
+                applyFilters();
+            });
+
+            // Disparar el filtro cada vez que escribe una letra o cambia la posición
+            searchName.addEventListener('input', applyFilters);
+            posFilter.addEventListener('change', applyFilters);
+        });
+    </script>
 </body>
 </html>
