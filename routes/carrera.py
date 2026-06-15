@@ -43,18 +43,34 @@ def dashboard():
 @carrera_bp.route('/jugador/<nombre>')
 @login_required
 def perfil_jugador(nombre):
-    tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
-    
-    # 4. Buscamos al jugador exacto en nuestra lista
-    jugador_encontrado = next((j for j in datos_reales if j['Nombre'] == nombre), None)
-    
-    if not jugador_encontrado:
-        flash("Jugador no encontrado en la base de datos.")
-        return redirect(url_for('carrera.dashboard'))
+    try:
+        tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
         
-    es_favorito = Favorito.query.filter_by(user_id=current_user.id, nombre_jugador=nombre).first() is not None
+        # 1. Buscamos al jugador exacto en nuestra lista de Python
+        jugador_encontrado = next((j for j in datos_reales if j['Nombre'] == nombre), None)
         
-    return render_template('perfil.html', jugador=jugador_encontrado, tier=tier_actual, es_favorito=es_favorito)
+        if not jugador_encontrado:
+            flash("Jugador no encontrado en la base de datos.")
+            return redirect(url_for('carrera.dashboard'))
+            
+        # 2. Comprobamos si está en favoritos
+        es_favorito = Favorito.query.filter_by(user_id=current_user.id, nombre_jugador=nombre).first() is not None
+            
+        # 3. Intentamos renderizar la plantilla
+        return render_template('perfil.html', jugador=jugador_encontrado, tier=tier_actual, es_favorito=es_favorito)
+        
+    except Exception as e:
+        # TRAMPA PARA CAZAR EL ERROR 500
+        import traceback
+        error_trace = traceback.format_exc()
+        return f"""
+        <div style='background:#111; color:#ff4444; padding:30px; font-family:monospace; font-size:16px; line-height:1.5; min-height:100vh;'>
+            <h2 style='color:white; margin-bottom:20px; font-family:sans-serif;'>🚨 Autopsia del Error 500 🚨</h2>
+            <p>El servidor se ha estrellado al intentar cargar a <b>{nombre}</b>. Aquí tienes el motivo exacto:</p>
+            <pre style='background:#000; padding:20px; overflow-x:auto; border:1px solid #ff4444;'>{error_trace}</pre>
+            <p style='color:white; margin-top:20px;'>Copia todo este bloque de texto negro y pásamelo.</p>
+        </div>
+        """
 
 @carrera_bp.route('/favorito/<nombre>', methods=['POST'])
 @login_required
