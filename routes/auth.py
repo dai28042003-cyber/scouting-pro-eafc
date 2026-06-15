@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 import stripe
+import re
 from models import User
 
 # Importamos la base de datos desde app.py (evitando importaciones circulares)
@@ -12,17 +13,35 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        apellido1 = request.form.get('apellido1')
+        apellido2 = request.form.get('apellido2', '') # Opcional
         username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
         tier = request.form.get('tier', 'Aficionado') 
         
-        user = User.query.filter_by(username=username).first()
-        if user:
-            flash('El usuario ya existe')
+        # 1. LA LEY DE LA CONTRASEÑA FUERTE (8 chars, 1 mayúscula, 1 número)
+        if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password):
+            flash("Tu contraseña es muy débil. Mínimo 8 caracteres, una mayúscula y un número.")
+            return redirect(url_for('auth.registro'))
+
+        # 2. Comprobar que no nos intentan colar un usuario repetido
+        if User.query.filter_by(username=username).first():
+            flash("Este Nombre de Usuario ya está pillado. Elige otro.")
             return redirect(url_for('auth.registro'))
             
+        if User.query.filter_by(email=email).first():
+            flash("Este correo ya pertenece a un Director Deportivo.")
+            return redirect(url_for('auth.registro'))
+            
+        # 3. Guardar en la nueva base de datos
         nuevo_usuario = User(
-            username=username, 
+            nombre=nombre,
+            apellido1=apellido1,
+            apellido2=apellido2,
+            username=username,
+            email=email,
             password_hash=generate_password_hash(password),
             tier=tier
         )

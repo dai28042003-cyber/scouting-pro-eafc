@@ -8,15 +8,15 @@ db = SQLAlchemy()
 # ==========================================
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    tier = db.Column(db.String(50), default='Aficionado')
     
-    # SEPARACIÓN DE NEGOCIO: Un plan para cada módulo
-    carrera_tier = db.Column(db.String(20), default='Aficionado')
-    fut_tier = db.Column(db.String(20), default='Gratis')
-    
-    # Mantenemos 'tier' temporalmente para no romper el código antiguo
-    tier = db.Column(db.String(20), default='Aficionado')
+    # --- LOS NUEVOS CAMPOS DEL ASALTO 1 ---
+    nombre = db.Column(db.String(50), nullable=False)
+    apellido1 = db.Column(db.String(50), nullable=False)
+    apellido2 = db.Column(db.String(50), nullable=True) # El segundo apellido puede ser opcional
+    username = db.Column(db.String(30), unique=True, nullable=False)
 
 # ==========================================
 # TABLA DE FAVORITOS (Listas de seguimiento)
