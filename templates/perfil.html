@@ -5,7 +5,6 @@
     <title>{{ jugador.get('Nombre', 'Perfil') }} | Scouting PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&display=swap" rel="stylesheet">
-    <!-- Cargamos la librería de gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>body { font-family: 'Rajdhani', sans-serif; }</style>
 </head>
@@ -15,16 +14,15 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <a href="/dashboard" class="flex items-center text-gray-400 hover:text-white transition font-bold">
                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Volver a la Base de Datos
+                Volver al Hub
             </a>
             <h1 class="text-xl font-black tracking-tighter">SCOUTING<span class="text-green-500">PRO</span></h1>
         </div>
     </nav>
 
-    <!-- Mensajes de Notificación -->
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <div class="max-w-4xl mx-auto mt-4 px-6 z-50 relative">
+            <div class="max-w-5xl mx-auto mt-4 px-6 z-50 relative">
                 <div class="bg-gray-900 border border-green-500 text-green-400 px-4 py-3 rounded-lg text-sm font-bold flex items-center justify-between shadow-lg">
                     <span>{{ messages[0] }}</span>
                 </div>
@@ -32,29 +30,28 @@
         {% endif %}
     {% endwith %}
 
-    <main class="max-w-4xl mx-auto p-6 mt-4">
+    <main class="max-w-5xl mx-auto p-6 mt-4 pb-20">
         <div class="bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
             
-            <div class="absolute -right-20 -top-20 opacity-5 pointer-events-none">
+            <div class="absolute -right-10 -top-10 opacity-5 pointer-events-none">
                 <h2 class="text-[15rem] font-black leading-none">{{ jugador.get('Media', 0) }}</h2>
             </div>
 
             <div class="flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
                 
-                <div class="w-48 h-64 bg-gray-950 border-2 border-gray-600 rounded-2xl flex flex-col items-center justify-center shadow-inner relative flex-shrink-0">
-                    <div class="absolute top-4 left-4 flex flex-col items-center">
+                <div class="w-48 h-64 bg-gray-950 border-2 border-gray-600 rounded-2xl flex flex-col items-center justify-start shadow-inner relative flex-shrink-0 overflow-hidden">
+                    <div class="absolute top-4 left-4 flex flex-col items-center z-10 bg-gray-950/80 p-2 rounded-lg backdrop-blur-sm border border-gray-800">
                         <span class="font-black text-4xl text-yellow-500 leading-none">{{ jugador.get('Media', 0) }}</span>
-                        <span class="text-sm font-bold text-gray-400 uppercase mt-1">{{ jugador.get('Posición', 'POS') }}</span>
+                        <span class="text-xs font-bold text-gray-400 uppercase mt-1">{{ jugador.get('Posición', 'POS') }}</span>
                     </div>
-                    <svg class="w-24 h-24 text-gray-700 mt-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <img src="{{ jugador.get('Foto', '') }}" alt="Foto de {{ jugador['Nombre'] }}" class="w-full h-full object-cover">
                 </div>
 
                 <div class="flex-1 w-full">
                     
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-4 w-full overflow-hidden">
-                        <h2 class="text-5xl md:text-6xl font-black uppercase tracking-tight leading-none truncate">{{ jugador.get('Nombre', 'Desconocido') }}</h2>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4 w-full overflow-hidden">
+                        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tight leading-none truncate w-full sm:w-auto">{{ jugador.get('Nombre', 'Desconocido') }}</h2>
                         
-                        <!-- BOTÓN DE FAVORITOS -->
                         <form action="/favorito/{{ jugador.get('Nombre', '') }}" method="POST" class="flex-shrink-0">
                             {% if es_favorito %}
                                 <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-yellow-400 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.4)]" title="Dejar de seguir">
@@ -79,73 +76,99 @@
                         </span>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
                         <div class="bg-gray-950 p-4 rounded-xl border border-gray-800">
                             <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Edad Actual</span>
                             <span class="text-2xl font-black">{{ jugador.get('Edad', 0) }} Años</span>
                         </div>
                         <div class="bg-gray-950 p-4 rounded-xl border border-gray-800">
-                            <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Potencial Máximo</span>
-                            <span class="text-2xl font-black text-yellow-500">{{ jugador.get('Potencial', 0) }} (+{{ jugador.get('Margen de Crecimiento', 0) }})</span>
+                            <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Potencial</span>
+                            <span class="text-2xl font-black text-yellow-500">{{ jugador.get('Potencial', 0) }} <span class="text-sm text-green-400 font-bold">(+{{ jugador.get('Margen de Crecimiento', 0) }})</span></span>
                         </div>
-                        <div class="col-span-2 bg-gray-950 p-4 rounded-xl border border-gray-800">
-                            <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Valor de Mercado Actual</span>
-                            <span class="text-3xl font-mono text-green-400">€ {{ "{:,.0f}".format(jugador.get('Valor Real (€)', 0)).replace(',', '.') }}</span>
+                        <div class="col-span-2 lg:col-span-1 bg-gray-950 p-4 rounded-xl border border-gray-800">
+                            <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Valor Estimado</span>
+                            <span class="text-2xl font-mono text-green-400">€ {{ "{:,.0f}".format(jugador.get('Valor Real (€)', 0)).replace(',', '.') }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Zona Analítica (Desbloqueada para VIP, Bloqueada para Aficionado) -->
             <div class="mt-10 border-t border-gray-700/50 pt-8">
-                <h3 class="text-xl font-bold uppercase text-gray-400 mb-6 flex items-center">
+                <h3 class="text-2xl font-black uppercase tracking-wide text-white mb-6 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                    Proyección del Algoritmo
+                    Centro de Datos Analítico
                 </h3>
 
                 {% if tier != 'Aficionado' %}
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-green-500/10 border border-green-500/30 p-6 rounded-xl">
-                        <span class="block text-sm text-green-400 uppercase font-bold tracking-wider mb-2">Ganga Score</span>
-                        <div class="text-5xl font-black text-white">{{ jugador.get('Ganga Score', 'N/A') }}<span class="text-xl text-gray-500">/10</span></div>
-                        <p class="text-sm font-sans text-gray-400 mt-2">Relación calidad/precio basada en el mercado global.</p>
+                    <div class="bg-green-500/10 border border-green-500/30 p-6 rounded-xl relative overflow-hidden">
+                        <span class="block text-sm text-green-400 uppercase font-black tracking-widest mb-2 z-10 relative">Ganga Score</span>
+                        <div class="text-6xl font-black text-white z-10 relative">{{ jugador.get('Ganga Score', 'N/A') }}<span class="text-2xl text-green-500/50">/10</span></div>
+                        <p class="text-sm font-sans text-gray-400 mt-2 z-10 relative">Relación calidad/precio actual comparada con el mercado.</p>
+                        <svg class="w-32 h-32 text-green-500/10 absolute -bottom-4 -right-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"></path></svg>
                     </div>
-                    <div class="bg-blue-500/10 border border-blue-500/30 p-6 rounded-xl">
-                        <span class="block text-sm text-blue-400 uppercase font-bold tracking-wider mb-2">ROI Estimado</span>
-                        <div class="text-5xl font-black text-white">{{ jugador.get('ROI (%)', 'N/A') }}%</div>
-                        <p class="text-sm font-sans text-gray-400 mt-2">Retorno de inversión calculado si se vende al alcanzar su potencial.</p>
+                    <div class="bg-blue-500/10 border border-blue-500/30 p-6 rounded-xl relative overflow-hidden">
+                        <span class="block text-sm text-blue-400 uppercase font-black tracking-widest mb-2 z-10 relative">ROI Estimado (Retorno)</span>
+                        <div class="text-6xl font-black text-white z-10 relative">+{{ jugador.get('ROI (%)', 'N/A') }}%</div>
+                        <p class="text-sm font-sans text-gray-400 mt-2 z-10 relative">Beneficio porcentual estimado al alcanzar su potencial máximo.</p>
+                        <svg class="w-32 h-32 text-blue-500/10 absolute -bottom-4 -right-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
                     </div>
                 </div>
 
-                <!-- Gráfico de Crecimiento (Solo VIP) -->
-                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800">
-                    <span class="block text-sm text-gray-500 uppercase font-bold tracking-wider mb-4">Curva de Desarrollo Proyectada</span>
-                    <div class="w-full h-48">
-                        <canvas id="growthChart"></canvas>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                    
+                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner">
+                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center">Perfil de Atributos (Base)</span>
+                        <div class="w-full h-64 relative flex justify-center">
+                            <canvas id="radarChart"></canvas>
+                        </div>
                     </div>
+
+                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner">
+                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center">Curva de Desarrollo de Media (OVR)</span>
+                        <div class="w-full h-64 relative">
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner">
+                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center">Proyección de Valor de Mercado (€)</span>
+                        <div class="w-full h-64 relative">
+                            <canvas id="marketValueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner flex flex-col items-center">
+                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center w-full">Índice de Viabilidad (Éxito vs Riesgo)</span>
+                        <div class="w-full h-48 relative flex justify-center mt-4">
+                            <canvas id="riskSuccessChart"></canvas>
+                        </div>
+                        <p class="text-[10px] text-gray-500 font-sans mt-6 text-center max-w-xs">El riesgo se calcula combinando la edad del jugador y el margen de crecimiento restante.</p>
+                    </div>
+
                 </div>
                 
                 {% else %}
-                <div class="bg-gray-950 border border-gray-800 p-8 rounded-xl text-center relative overflow-hidden">
+                <div class="bg-gray-950 border border-gray-800 p-8 rounded-2xl text-center relative overflow-hidden shadow-2xl">
                     <div class="absolute inset-0 flex items-center justify-center bg-gray-950/85 z-10 flex-col backdrop-blur-md">
-                        <svg class="w-12 h-12 text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        <h4 class="text-xl font-bold mb-2">Análisis y Gráficos Bloqueados</h4>
-                        <p class="text-sm text-gray-400 mb-6 font-sans max-w-md">Sube de nivel para ver la curva de crecimiento dinámico, el Ganga Score y el ROI.</p>
+                        <span class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">Requiere Licencia Pro</span>
+                        <h4 class="text-2xl font-black uppercase mb-2">Centro de Datos Bloqueado</h4>
+                        <p class="text-gray-400 mb-8 font-sans max-w-md mx-auto">Sube de nivel para acceder al panel de 4 gráficos interactivos, simulador de precios y análisis de viabilidad.</p>
                         
-                        <a href="/godmode/clasemundial" class="bg-green-500 hover:bg-green-400 text-black px-8 py-3 rounded-full font-black uppercase tracking-wider text-sm transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)] hover:scale-105">
+                        <a href="/godmode/clasemundial" class="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-105 hover:-translate-y-1">
                             Desbloquear con Modo Dios
                         </a>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-6 opacity-30 select-none blur-sm pointer-events-none mb-6">
+                    <div class="grid grid-cols-2 gap-6 opacity-20 select-none blur-md pointer-events-none mb-6">
                         <div>
                             <span class="block text-sm uppercase font-bold mb-2">Ganga Score</span>
-                            <div class="text-5xl font-black">9.8/10</div>
+                            <div class="text-6xl font-black">9.8/10</div>
                         </div>
                         <div>
                             <span class="block text-sm uppercase font-bold mb-2">ROI Estimado</span>
-                            <div class="text-5xl font-black">450%</div>
+                            <div class="text-6xl font-black">+450%</div>
                         </div>
                     </div>
                 </div>
@@ -154,63 +177,149 @@
         </div>
     </main>
 
-    <!-- Lógica del Gráfico (Se ejecuta solo si la vista está desbloqueada) -->
     {% if tier != 'Aficionado' %}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const ctx = document.getElementById('growthChart').getContext('2d');
-            
-            // TRUCO: Envolvemos en comillas para evitar errores del editor de código
-            // y usamos Number() para que JavaScript lo entienda como un valor matemático.
+            // Recogida de datos ocultos en Jinja para usarlos en JS
             const mediaActual = Number("{{ jugador.get('Media', 70) }}");
             const potencial = Number("{{ jugador.get('Potencial', 80) }}");
             const edadActual = Number("{{ jugador.get('Edad', 18) }}");
+            const pos = "{{ jugador.get('Posición', 'MC') }}";
+            const valorActual = Number("{{ jugador.get('Valor Real (€)', 0) }}");
+            const roi = Number("{{ jugador.get('ROI (%)', 0) }}");
+            const margen = Number("{{ jugador.get('Margen de Crecimiento', 0) }}");
             
-            // Calculamos puntos intermedios realistas para hacer la curva
-            const diferencia = potencial - mediaActual;
-            const fase1 = mediaActual + Math.round(diferencia * 0.4);
-            const fase2 = mediaActual + Math.round(diferencia * 0.8);
+            Chart.defaults.color = '#9ca3af';
+            Chart.defaults.font.family = 'Rajdhani';
 
-            new Chart(ctx, {
-                type: 'line',
+            // ==========================================
+            // 1. RADAR CHART
+            // ==========================================
+            let stats = [];
+            let labelsRadar = [];
+
+            if (pos.includes('POR')) {
+                labelsRadar = ['EST', 'PAR', 'SAQ', 'REF', 'VEL', 'POS'];
+                stats = [mediaActual+3, mediaActual-2, mediaActual+1, mediaActual+4, Math.max(30, mediaActual-30), mediaActual];
+            } else if (pos.includes('DFC') || pos.includes('LI') || pos.includes('LD')) {
+                labelsRadar = ['RIT', 'TIR', 'PAS', 'REG', 'DEF', 'FÍS'];
+                stats = [mediaActual-5, Math.max(30, mediaActual-25), mediaActual-5, mediaActual-5, mediaActual+6, mediaActual+5];
+            } else if (pos.includes('MC') || pos.includes('MCD')) {
+                labelsRadar = ['RIT', 'TIR', 'PAS', 'REG', 'DEF', 'FÍS'];
+                stats = [mediaActual-3, mediaActual-5, mediaActual+5, mediaActual+3, mediaActual-2, mediaActual];
+            } else { 
+                labelsRadar = ['RIT', 'TIR', 'PAS', 'REG', 'DEF', 'FÍS'];
+                stats = [mediaActual+7, mediaActual+4, mediaActual-4, mediaActual+6, Math.max(30, mediaActual-35), mediaActual-5];
+            }
+            stats = stats.map(s => Math.min(99, Math.max(30, s)));
+
+            new Chart(document.getElementById('radarChart').getContext('2d'), {
+                type: 'radar',
                 data: {
-                    labels: [edadActual + ' años (Hoy)', (edadActual + 1) + ' años', (edadActual + 2) + ' años', (edadActual + 3) + ' años (Techo)'],
+                    labels: labelsRadar,
                     datasets: [{
-                        label: 'Proyección de Media (OVR)',
-                        data: [mediaActual, fase1, fase2, potencial],
-                        borderColor: '#22c55e', // Verde ScoutingPRO
-                        backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#22c55e',
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        tension: 0.4, // Suaviza la línea
-                        fill: true
+                        label: 'Atributos Base',
+                        data: stats,
+                        backgroundColor: 'rgba(234, 179, 8, 0.2)',
+                        borderColor: '#eab308',
+                        pointBackgroundColor: '#eab308',
+                        pointHoverBackgroundColor: '#fff',
+                        borderWidth: 2,
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            min: mediaActual - 2,
-                            max: potencial + 2,
-                            grid: { color: 'rgba(55, 65, 81, 0.5)' }, // Gris tenue
-                            ticks: { color: '#9ca3af', font: { family: 'Rajdhani', weight: 'bold' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#9ca3af', font: { family: 'Rajdhani', weight: 'bold' } }
+                        r: {
+                            angleLines: { color: 'rgba(55, 65, 81, 0.5)' },
+                            grid: { color: 'rgba(55, 65, 81, 0.5)' },
+                            pointLabels: { color: '#9ca3af', font: { size: 12, weight: 'bold' } },
+                            ticks: { display: false, min: 20, max: 100 }
                         }
                     }
                 }
             });
+
+            // ==========================================
+            // 2. LINE CHART (CRECIMIENTO OVR)
+            // ==========================================
+            const difLine = potencial - mediaActual;
+            new Chart(document.getElementById('growthChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [edadActual, edadActual + 1, edadActual + 2, edadActual + 3 + '+'],
+                    datasets: [{
+                        label: 'OVR',
+                        data: [mediaActual, mediaActual + Math.round(difLine*0.4), mediaActual + Math.round(difLine*0.8), potencial],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#3b82f6',
+                        tension: 0.4, fill: true
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(55, 65, 81, 0.3)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // ==========================================
+            // 3. BAR CHART (PROYECCIÓN DE VALOR)
+            // ==========================================
+            const valorFinal = valorActual * (1 + (roi / 100));
+            new Chart(document.getElementById('marketValueChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Actual ('+edadActual+' años)', 'Fase de Pico', 'Potencial Máx ('+potencial+')'],
+                    datasets: [{
+                        label: 'Valor €',
+                        data: [valorActual, valorActual + ((valorFinal - valorActual) * 0.5), valorFinal],
+                        backgroundColor: ['rgba(55, 65, 81, 0.6)', 'rgba(34, 197, 94, 0.4)', 'rgba(34, 197, 94, 0.9)'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // ==========================================
+            // 4. DOUGHNUT CHART (RIESGO VS ÉXITO)
+            // ==========================================
+            let exito = 100 - (margen * 1.5) + ((edadActual - 16) * 1.5);
+            exito = Math.min(95, Math.max(25, exito));
+            
+            new Chart(document.getElementById('riskSuccessChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Probabilidad de Éxito', 'Riesgo de Estancamiento'],
+                    datasets: [{
+                        data: [exito, 100 - exito],
+                        backgroundColor: ['#22c55e', '#ef4444'],
+                        borderColor: '#111827',
+                        borderWidth: 4,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
         });
     </script>
-    {% endif %} <!-- ¡ESTA ES LA LÍNEA QUE FALTABA! -->
-
+    {% endif %}
 </body>
 </html>
