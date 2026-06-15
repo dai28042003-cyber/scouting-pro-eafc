@@ -45,7 +45,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {% for jugador in jugadores %}
-            <a href="/jugador/{{ jugador['Nombre'] }}" class="block bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-t-[2rem] rounded-b-xl p-4 relative overflow-hidden shadow-2xl hover:scale-105 hover:border-green-500/50 transition-all cursor-pointer group">
+            <a href="{{ url_for('carrera.perfil_jugador', nombre=jugador['Nombre']) }}" class="block bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-t-[2rem] rounded-b-xl p-4 relative overflow-hidden shadow-2xl hover:scale-105 hover:border-green-500/50 transition-all cursor-pointer group">
                 
                 <div class="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
