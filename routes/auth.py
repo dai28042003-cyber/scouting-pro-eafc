@@ -12,14 +12,13 @@ from models import User, db
 
 auth_bp = Blueprint('auth', __name__)
 
-# --- MOTOR DE CORREO AUTOMÁTICO ---
+# --- MOTOR DE CORREO AUTOMÁTICO MEJORADO ---
 def enviar_codigo(destinatario, codigo):
     remitente = os.environ.get('MAIL_USERNAME')
     password = os.environ.get('MAIL_PASSWORD')
     
     if not remitente or not password:
-        print("⚠️ ALERTA: Faltan las credenciales de correo en Render.")
-        return False
+        raise Exception("Las variables MAIL_USERNAME o MAIL_PASSWORD no están configuradas en Render. Revisa la pestaña Environment.")
 
     msg = MIMEText(f"Bienvenido Mánager.\n\nTu código de acceso de 6 dígitos para Scouting PRO es: {codigo}\n\nIntroduce este código en la web para activar tu cuenta.")
     msg['Subject'] = 'Código de Verificación - Scouting PRO'
@@ -27,15 +26,16 @@ def enviar_codigo(destinatario, codigo):
     msg['To'] = destinatario
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        # Añadimos TIMEOUT de 10 segundos para que el servidor no se quede pillado
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         server.starttls()
         server.login(remitente, password)
         server.sendmail(remitente, destinatario, msg.as_string())
         server.quit()
         return True
     except Exception as e:
-        print(f"Error enviando correo: {e}")
-        return False
+        # Si Gmail lo bloquea, lanzamos el error para cazarlo en la pantalla negra
+        raise Exception(f"Fallo al conectar con Gmail. Detalles: {e}")
 
 # --- RUTAS ---
 @auth_bp.route('/registro', methods=['GET', 'POST'])
@@ -65,6 +65,10 @@ def registro():
             # Generamos el código secreto de 6 dígitos
             codigo_secreto = str(random.randint(100000, 999999))
             
+            # ¡NUEVO ORDEN! 1º Enviamos el correo. Si falla, aborta y no guarda al usuario.
+            enviar_codigo(email, codigo_secreto)
+            
+            # 2º Si el correo se envía bien, guardamos al usuario
             nuevo_usuario = User(
                 nombre=nombre,
                 apellido1=apellido1,
@@ -79,10 +83,6 @@ def registro():
             db.session.add(nuevo_usuario)
             db.session.commit()
             
-            # Enviamos el correo
-            enviar_codigo(email, codigo_secreto)
-            
-            # Iniciamos sesión pero como no está verificado, se quedará atrapado en la pantalla de código
             login_user(nuevo_usuario)
             return redirect(url_for('auth.verificacion')) 
             
@@ -90,8 +90,13 @@ def registro():
 
     except Exception as e:
         error_trace = traceback.format_exc()
-        return f"<div style='background:#111; color:#ff4444; padding:30px; font-family:monospace;'><pre>{error_trace}</pre></div>"
-
+        return f"""
+        <div style='background:#111; color:#ff4444; padding:30px; font-family:monospace; font-size:16px; min-height:100vh;'>
+            <h2 style='color:white;'>🚨 Error de Correo Detectado 🚨</h2>
+            <p>Gmail nos ha cortado el paso. Pásame este texto:</p>
+            <pre style='background:#000; padding:20px; border:1px solid #ff4444;'>{error_trace}</pre>
+        </div>
+        """
 
 @auth_bp.route('/verificacion', methods=['GET', 'POST'])
 @login_required
@@ -111,7 +116,6 @@ def verificacion():
             flash("El código es incorrecto. Revisa tu bandeja de entrada o SPAM.")
             
     return render_template('verificar.html')
-
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -135,13 +139,10 @@ def logout():
 @auth_bp.route('/vestuario')
 @login_required
 def vestuario():
-    # EL MURO DE SEGURIDAD: Si no está verificado, lo echamos de aquí
     if not current_user.verificado:
         return redirect(url_for('auth.verificacion'))
-        
     return render_template('vestuario.html', tier=current_user.tier)
 
-# --- RUTAS DE PAGO STRIPE (Sin cambios) ---
 @auth_bp.route('/checkout/<plan>')
 @login_required
 def checkout(plan):
