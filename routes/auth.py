@@ -93,9 +93,9 @@ def logout():
 @login_required
 def checkout(plan):
     precios = {
-        'aficionado': 499,
-        'profesional': 999,
-        'clasemundial': 4999
+        'aficionado': 399,      # 3.99€ (Modo Carrera Básico)
+        'profesional': 599,     # 5.99€ (Modo Carrera Avanzado)
+        'clasemundial': 899     # 8.99€ (Modo FUT / VIP)
     }
     
     precio_centimos = precios.get(plan, 999)
