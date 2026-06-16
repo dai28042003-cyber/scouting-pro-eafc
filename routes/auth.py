@@ -41,7 +41,7 @@ def registro():
             username = request.form.get('username')
             email = request.form.get('email')
             password_input = request.form.get('password')
-            tier = request.form.get('tier', 'Aficionado') 
+            tier = 'Aficionado' # PROHIBIDO REGALAR VIP. Todos nacen en Aficionado.
             
             if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password_input):
                 flash("Tu contraseña es muy débil. Mínimo 8 caracteres, 1 mayúscula y 1 número.")
