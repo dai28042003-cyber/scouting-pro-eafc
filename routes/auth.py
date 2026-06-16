@@ -5,37 +5,30 @@ import stripe
 import re
 import traceback
 import random
-import smtplib
 import os
-from email.mime.text import MIMEText
+import resend # NUEVA API PROFESIONAL
 from models import User, db 
 
 auth_bp = Blueprint('auth', __name__)
 
-# --- MOTOR DE CORREO AUTOMÁTICO MEJORADO ---
+# --- MOTOR DE CORREO PROFESIONAL (RESEND API) ---
 def enviar_codigo(destinatario, codigo):
-    remitente = os.environ.get('MAIL_USERNAME')
-    password = os.environ.get('MAIL_PASSWORD')
+    resend.api_key = os.environ.get('RESEND_API_KEY')
     
-    if not remitente or not password:
-        raise Exception("Las variables MAIL_USERNAME o MAIL_PASSWORD no están configuradas en Render. Revisa la pestaña Environment.")
-
-    msg = MIMEText(f"Bienvenido Mánager.\n\nTu código de acceso de 6 dígitos para Scouting PRO es: {codigo}\n\nIntroduce este código en la web para activar tu cuenta.")
-    msg['Subject'] = 'Código de Verificación - Scouting PRO'
-    msg['From'] = remitente
-    msg['To'] = destinatario
+    if not resend.api_key:
+        raise Exception("Falta la RESEND_API_KEY en las variables de entorno de Render.")
 
     try:
-        # Añadimos TIMEOUT de 10 segundos para que el servidor no se quede pillado
-        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
-        server.starttls()
-        server.login(remitente, password)
-        server.sendmail(remitente, destinatario, msg.as_string())
-        server.quit()
+        # Usamos la API para disparar el correo por el puerto 443 seguro
+        r = resend.Emails.send({
+            "from": "Scouting PRO <onboarding@resend.dev>",
+            "to": destinatario,
+            "subject": "Código de Verificación - Scouting PRO",
+            "text": f"Bienvenido Mánager.\n\nTu código de acceso secreto para Scouting PRO es: {codigo}\n\nIntroduce este código en la web para activar tu cuenta de Director Deportivo."
+        })
         return True
     except Exception as e:
-        # Si Gmail lo bloquea, lanzamos el error para cazarlo en la pantalla negra
-        raise Exception(f"Fallo al conectar con Gmail. Detalles: {e}")
+        raise Exception(f"Fallo al conectar con la API de Resend. Detalles: {e}")
 
 # --- RUTAS ---
 @auth_bp.route('/registro', methods=['GET', 'POST'])
@@ -62,13 +55,11 @@ def registro():
                 flash("Este correo ya pertenece a un Director Deportivo.")
                 return redirect(url_for('auth.registro'))
                 
-            # Generamos el código secreto de 6 dígitos
             codigo_secreto = str(random.randint(100000, 999999))
             
-            # ¡NUEVO ORDEN! 1º Enviamos el correo. Si falla, aborta y no guarda al usuario.
+            # Disparamos el correo con la API Profesional
             enviar_codigo(email, codigo_secreto)
             
-            # 2º Si el correo se envía bien, guardamos al usuario
             nuevo_usuario = User(
                 nombre=nombre,
                 apellido1=apellido1,
@@ -92,8 +83,8 @@ def registro():
         error_trace = traceback.format_exc()
         return f"""
         <div style='background:#111; color:#ff4444; padding:30px; font-family:monospace; font-size:16px; min-height:100vh;'>
-            <h2 style='color:white;'>🚨 Error de Correo Detectado 🚨</h2>
-            <p>Gmail nos ha cortado el paso. Pásame este texto:</p>
+            <h2 style='color:white;'>🚨 Error de la API de Resend 🚨</h2>
+            <p>La API profesional ha detectado un problema. Pásame este texto:</p>
             <pre style='background:#000; padding:20px; border:1px solid #ff4444;'>{error_trace}</pre>
         </div>
         """
