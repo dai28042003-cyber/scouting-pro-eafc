@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 import stripe
 import re
+import traceback
 from models import User
 
 # Importamos la base de datos desde app.py (evitando importaciones circulares)
@@ -12,47 +13,60 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
-    if request.method == 'POST':
-        nombre = request.form.get('nombre')
-        apellido1 = request.form.get('apellido1')
-        apellido2 = request.form.get('apellido2', '') # Opcional
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        tier = request.form.get('tier', 'Aficionado') 
-        
-        # 1. LA LEY DE LA CONTRASEÑA FUERTE (8 chars, 1 mayúscula, 1 número)
-        if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password):
-            flash("Tu contraseña es muy débil. Mínimo 8 caracteres, una mayúscula y un número.")
-            return redirect(url_for('auth.registro'))
+    try:
+        if request.method == 'POST':
+            nombre = request.form.get('nombre')
+            apellido1 = request.form.get('apellido1')
+            apellido2 = request.form.get('apellido2', '') # Opcional
+            username = request.form.get('username')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            tier = request.form.get('tier', 'Aficionado') 
+            
+            # 1. LA LEY DE LA CONTRASEÑA FUERTE (8 chars, 1 mayúscula, 1 número)
+            if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password):
+                flash("Tu contraseña es muy débil. Mínimo 8 caracteres, una mayúscula y un número.")
+                return redirect(url_for('auth.registro'))
 
-        # 2. Comprobar que no nos intentan colar un usuario repetido
-        if User.query.filter_by(username=username).first():
-            flash("Este Nombre de Usuario ya está pillado. Elige otro.")
-            return redirect(url_for('auth.registro'))
+            # 2. Comprobar que no nos intentan colar un usuario repetido
+            if User.query.filter_by(username=username).first():
+                flash("Este Nombre de Usuario ya está pillado. Elige otro.")
+                return redirect(url_for('auth.registro'))
+                
+            if User.query.filter_by(email=email).first():
+                flash("Este correo ya pertenece a un Director Deportivo.")
+                return redirect(url_for('auth.registro'))
+                
+            # 3. Guardar en la nueva base de datos
+            nuevo_usuario = User(
+                nombre=nombre,
+                apellido1=apellido1,
+                apellido2=apellido2,
+                username=username,
+                email=email,
+                password_hash=generate_password_hash(password),
+                tier=tier
+            )
+            db.session.add(nuevo_usuario)
+            db.session.commit()
             
-        if User.query.filter_by(email=email).first():
-            flash("Este correo ya pertenece a un Director Deportivo.")
-            return redirect(url_for('auth.registro'))
+            login_user(nuevo_usuario)
+            # Redirige al nuevo Hub Central
+            return redirect(url_for('auth.vestuario')) 
             
-        # 3. Guardar en la nueva base de datos
-        nuevo_usuario = User(
-            nombre=nombre,
-            apellido1=apellido1,
-            apellido2=apellido2,
-            username=username,
-            email=email,
-            password_hash=generate_password_hash(password),
-            tier=tier
-        )
-        db.session.add(nuevo_usuario)
-        db.session.commit()
-        
-        login_user(nuevo_usuario)
-        # Redirige al nuevo Hub Central
-        return redirect(url_for('auth.vestuario')) 
-        
-    return render_template('registro.html')
+        return render_template('registro.html')
+
+    except Exception as e:
+        # TRAMPA PARA CAZAR EL ERROR 500 EN EL REGISTRO
+        error_trace = traceback.format_exc()
+        return f"""
+        <div style='background:#111; color:#ff4444; padding:30px; font-family:monospace; font-size:16px; line-height:1.5; min-height:100vh;'>
+            <h2 style='color:white; margin-bottom:20px; font-family:sans-serif;'>🚨 Autopsia del Error 500 (Registro) 🚨</h2>
+            <p>El servidor se ha estrellado al intentar registrar al usuario. Aquí tienes el motivo exacto:</p>
+            <pre style='background:#000; padding:20px; overflow-x:auto; border:1px solid #ff4444;'>{error_trace}</pre>
+            <p style='color:white; margin-top:20px;'>Copia todo este bloque de texto negro y pásamelo.</p>
+        </div>
+        """
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
