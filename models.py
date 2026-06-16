@@ -8,15 +8,17 @@ db = SQLAlchemy()
 # ==========================================
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    apellido1 = db.Column(db.String(50), nullable=False)
+    apellido2 = db.Column(db.String(50), nullable=True)
+    username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     tier = db.Column(db.String(50), default='Aficionado')
     
-    # --- LOS NUEVOS CAMPOS DEL ASALTO 1 ---
-    nombre = db.Column(db.String(50), nullable=False)
-    apellido1 = db.Column(db.String(50), nullable=False)
-    apellido2 = db.Column(db.String(50), nullable=True) # El segundo apellido puede ser opcional
-    username = db.Column(db.String(30), unique=True, nullable=False)
+    # --- NUEVOS CAMPOS PARA EL ASALTO 2 ---
+    verificado = db.Column(db.Boolean, default=False)
+    codigo_verificacion = db.Column(db.String(6), nullable=True)
 
 # ==========================================
 # TABLA DE FAVORITOS (Listas de seguimiento)
