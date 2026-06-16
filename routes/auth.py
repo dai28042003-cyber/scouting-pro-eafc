@@ -20,11 +20,11 @@ def registro():
             apellido2 = request.form.get('apellido2', '') # Opcional
             username = request.form.get('username')
             email = request.form.get('email')
-            password = request.form.get('password')
+            password_input = request.form.get('password')
             tier = request.form.get('tier', 'Aficionado') 
             
             # 1. LA LEY DE LA CONTRASEÑA FUERTE (8 chars, 1 mayúscula, 1 número)
-            if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password):
+            if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password_input):
                 flash("Tu contraseña es muy débil. Mínimo 8 caracteres, una mayúscula y un número.")
                 return redirect(url_for('auth.registro'))
 
@@ -37,14 +37,14 @@ def registro():
                 flash("Este correo ya pertenece a un Director Deportivo.")
                 return redirect(url_for('auth.registro'))
                 
-            # 3. Guardar en la nueva base de datos
+            # 3. Guardar en la nueva base de datos (CORREGIDO 'password')
             nuevo_usuario = User(
                 nombre=nombre,
                 apellido1=apellido1,
                 apellido2=apellido2,
                 username=username,
                 email=email,
-                password_hash=generate_password_hash(password),
+                password=generate_password_hash(password_input),
                 tier=tier
             )
             db.session.add(nuevo_usuario)
@@ -72,10 +72,11 @@ def registro():
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
-        password = request.form.get('password')
+        password_input = request.form.get('password')
         
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password_hash, password):
+        # CORREGIDO: user.password en lugar de user.password_hash
+        if user and check_password_hash(user.password, password_input):
             login_user(user)
             # Redirige al nuevo Hub Central
             return redirect(url_for('auth.vestuario')) 
