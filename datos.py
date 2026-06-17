@@ -2,7 +2,7 @@
 # BASE DE DATOS DEFINITIVA (FC 26)
 # ==========================================
 
-datos_reales = [
+jugadores = [
     {"Nombre": "Guillaume Restes", "Edad": 19, "Media": 78, "Potencial": 88, "Posición": "POR", "Equipo": "Toulouse", "Nacionalidad": "Francia", "Valor Real (€)": 24500000, "Margen de Crecimiento": 10, "Ganga Score": 8.8, "ROI (%)": 12.8, "Foto": "https://ui-avatars.com/api/?name=Guillaume+Restes&background=22c55e&color=fff&size=256&bold=true"},
     {"Nombre": "Dennis Seimen", "Edad": 18, "Media": 69, "Potencial": 87, "Posición": "POR", "Equipo": "Stuttgart", "Nacionalidad": "Alemania", "Valor Real (€)": 3200000, "Margen de Crecimiento": 18, "Ganga Score": 9.4, "ROI (%)": 26.0, "Foto": "https://ui-avatars.com/api/?name=Dennis+Seimen&background=22c55e&color=fff&size=256&bold=true"},
     {"Nombre": "James Trafford", "Edad": 21, "Media": 75, "Potencial": 86, "Posición": "POR", "Equipo": "Burnley", "Nacionalidad": "Inglaterra", "Valor Real (€)": 10500000, "Margen de Crecimiento": 11, "Ganga Score": 8.1, "ROI (%)": 14.6, "Foto": "https://ui-avatars.com/api/?name=James+Trafford&background=22c55e&color=fff&size=256&bold=true"},
