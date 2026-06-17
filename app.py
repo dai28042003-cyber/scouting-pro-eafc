@@ -3,21 +3,22 @@ from flask_login import LoginManager
 import stripe
 import os
 
-# 1. Importamos la BD y el Modelo desde el nuevo archivo
-from models import db, User
+# 1. Importamos la BD y los Modelos
+from models import db, User, Jugador, Favorito
+
+# Importamos tu archivo de datos local
+from datos import jugadores as lista_jugadores 
 
 login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
 
-    # 2. Configuración con Ruta Absoluta (¡Clave para Render!)
     basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'usuarios.db')
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'clave_super_secreta_proyecto_fc')
     stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
-    # 3. Conectamos las extensiones
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -26,7 +27,6 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # 4. Registramos los módulos
     from routes.auth import auth_bp
     from routes.carrera import carrera_bp
     from routes.fut import fut_bp
@@ -35,13 +35,39 @@ def create_app():
     app.register_blueprint(carrera_bp)
     app.register_blueprint(fut_bp)
 
-    # 5. Forzamos la creación de tablas
+    # 5. Forzamos la creación de tablas y VOLCAMOS LOS DATOS
     with app.app_context():
         db.create_all()
+        
+        # Detector: ¿Está la tabla vacía?
+        if not Jugador.query.first():
+            print("Inyectando 200 jugadores en la base de datos...")
+            for j in lista_jugadores:
+                nuevo_jugador = Jugador(
+                    nombre=j.get('Nombre'),
+                    posicion=j.get('Posición'),
+                    equipo=j.get('Equipo'),
+                    nacionalidad=j.get('Nacionalidad'),
+                    edad=int(j.get('Edad', 0)),
+                    media=int(j.get('Media', 0)),
+                    potencial=int(j.get('Potencial', 0)),
+                    valor=float(j.get('Valor Real (€)', 0)),
+                    foto=j.get('Foto'),
+                    ganga_score=float(j.get('Ganga Score', 0)),
+                    roi=float(j.get('ROI (%)', 0)),
+                    margen_crecimiento=int(j.get('Margen de Crecimiento', 0))
+                )
+                db.session.add(nuevo_jugador)
+            
+            db.session.commit()
+            print("¡Volcado de datos completado con éxito!")
 
     @app.route('/')
     def home():
-        return render_template('landing.html')
+        # Ahora que están en la base de datos, podemos extraerlos de ahí
+        # (Por ahora le pasaremos los 10 primeros para que la portada cargue rápido)
+        jugadores_portada = Jugador.query.limit(10).all()
+        return render_template('landing.html', jugadores=jugadores_portada)
 
     return app
 
