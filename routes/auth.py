@@ -146,7 +146,8 @@ def checkout(plan):
 
     try:
         checkout_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
+            # Se añaden bizum y link para Apple Pay, Google Pay y carteras móviles
+            payment_method_types=['card', 'bizum', 'link'],
             line_items=[{'price_data': {'currency': 'eur', 'product_data': {'name': nombre_plan}, 'unit_amount': precio_centimos}, 'quantity': 1}],
             mode='payment',
             success_url=url_for('auth.pago_exitoso', _external=True) + f"?session_id={{CHECKOUT_SESSION_ID}}&plan={plan}",
