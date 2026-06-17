@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Favorito
+# IMPORTANTE: Hemos añadido Jugador a las importaciones
+from models import db, Favorito, Jugador
 
 # 1. IMPORTAMOS NUESTRA NUEVA BASE DE DATOS DE PYTHON
 from datos import jugadores as datos_reales
@@ -20,10 +21,10 @@ def dashboard():
     edad_max = request.args.get('edad_max', default=40, type=int)
     presupuesto_max = request.args.get('presupuesto_max', default=1000000000, type=float)
     
-    # 2. Filtramos la lista de Python directamente
+    # Filtramos la lista de Python directamente
     df_filtrado = [j for j in datos_reales if j['Edad'] <= edad_max and j['Valor Real (€)'] <= presupuesto_max]
     
-    # 3. Ordenamos por Ganga Score y ROI
+    # Ordenamos por Ganga Score y ROI
     df_filtrado.sort(key=lambda x: (x.get('Ganga Score', 0), x.get('ROI (%)', 0)), reverse=True)
     
     if tier_actual == 'Aficionado':
@@ -54,8 +55,14 @@ def perfil_jugador(nombre):
             return redirect(url_for('carrera.dashboard'))
             
         # 2. Comprobamos si está en favoritos
-        es_favorito = Favorito.query.filter_by(user_id=current_user.id, nombre_jugador=nombre).first() is not None
-            
+        # Buscamos primero al jugador en la base de datos real
+        jugador_db = Jugador.query.filter_by(nombre=nombre).first()
+        
+        # Comprobamos si su ID está en la libreta de este mánager
+        es_favorito = False
+        if jugador_db:
+            es_favorito = Favorito.query.filter_by(user_id=current_user.id, jugador_id=jugador_db.id).first() is not None
+                
         # 3. Intentamos renderizar la plantilla
         return render_template('perfil.html', jugador=jugador_encontrado, tier=tier_actual, es_favorito=es_favorito)
         
@@ -77,34 +84,48 @@ def perfil_jugador(nombre):
 def toggle_favorito(nombre):
     tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
     
-    favorito_existente = Favorito.query.filter_by(user_id=current_user.id, nombre_jugador=nombre).first()
+    # 1. Buscamos la ficha oficial del jugador en la BD
+    jugador_db = Jugador.query.filter_by(nombre=nombre).first()
     
-    if favorito_existente:
-        db.session.delete(favorito_existente)
-        db.session.commit()
-        flash(f"{nombre} eliminado de tu libreta de seguimiento.")
+    if not jugador_db:
+        flash("Error: El jugador no existe en la base de datos principal.")
+        return redirect(request.referrer)
+
+    # 2. Buscamos si ya está en la libreta del usuario usando el ID
+    fav = Favorito.query.filter_by(user_id=current_user.id, jugador_id=jugador_db.id).first()
+    
+    if fav:
+        # Si ya estaba, lo borramos (Dejar de seguir)
+        db.session.delete(fav)
+        flash(f"Has quitado a {nombre} de tu libreta.")
     else:
+        # LÍMITE DE AFICIONADOS: Comprobamos cuántos tiene guardados
         total_favoritos = Favorito.query.filter_by(user_id=current_user.id).count()
-        
         if tier_actual == 'Aficionado' and total_favoritos >= 3:
             flash("Límite alcanzado. Mejora a Mánager Pro para seguir jugadores ilimitados.")
         else:
-            nuevo_fav = Favorito(user_id=current_user.id, nombre_jugador=nombre)
+            # Si no estaba y tiene hueco, lo añadimos usando las nuevas columnas
+            nuevo_fav = Favorito(user_id=current_user.id, jugador_id=jugador_db.id)
             db.session.add(nuevo_fav)
-            db.session.commit()
-            flash(f"{nombre} añadido a tu libreta de seguimiento.")
+            flash(f"Has guardado a {nombre} en tu libreta.")
             
-    return redirect(url_for('carrera.perfil_jugador', nombre=nombre))
+    db.session.commit()
+    return redirect(request.referrer)
 
 @carrera_bp.route('/mis-promesas')
 @login_required
 def mis_promesas():
     tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
     
+    # 1. Sacamos las relaciones de favoritos del usuario
     favoritos_db = Favorito.query.filter_by(user_id=current_user.id).all()
-    nombres_guardados = [fav.nombre_jugador for fav in favoritos_db]
+    ids_guardados = [fav.jugador_id for fav in favoritos_db]
     
-    # 5. Filtramos los favoritos desde nuestra lista
+    # 2. Obtenemos los nombres de esos IDs consultando a los jugadores
+    jugadores_db = Jugador.query.filter(Jugador.id.in_(ids_guardados)).all()
+    nombres_guardados = [j.nombre for j in jugadores_db]
+    
+    # 3. Filtramos nuestra lista de datos reales para enviar a Jinja
     jugadores_favs = [j for j in datos_reales if j['Nombre'] in nombres_guardados]
 
     return render_template('mis_promesas.html', jugadores=jugadores_favs, tier=tier_actual)
