@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from models import db, Favorito
 
 # 1. IMPORTAMOS NUESTRA NUEVA BASE DE DATOS DE PYTHON
-from datos import datos_reales 
+from datos import jugadores as datos_reales
 
 carrera_bp = Blueprint('carrera', __name__)
 
