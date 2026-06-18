@@ -8,8 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .carousel-slide { display: none; transition: opacity 0.3s ease-in-out; }
-        .carousel-slide.active { display: block; }
+        .carousel-slide { display: none; opacity: 0; transition: opacity 0.4s ease-in-out; }
+        .carousel-slide.active { display: flex; flex-direction: column; opacity: 1; }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
     </style>
@@ -25,11 +25,9 @@
 
     <div class="max-w-7xl mx-auto px-6 mt-8">
         
-        <!-- CABECERA -->
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8 mb-8 shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-green-500 opacity-10 blur-[100px] pointer-events-none"></div>
             
-            <!-- EL TRUCO PARA SOFIFA: referrerpolicy="no-referrer" -->
             <img src="{{ jugador['Foto'] }}" referrerpolicy="no-referrer" alt="{{ jugador['Nombre'] }}" class="w-40 h-40 rounded-full border-4 border-gray-800 shadow-xl object-cover bg-gray-800">
             
             <div class="flex-1 text-center md:text-left z-10">
@@ -63,10 +61,8 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- COLUMNA IZQUIERDA -->
             <div class="lg:col-span-1 flex flex-col gap-6">
                 
-                <!-- GRÁFICO RADAR ESTRELLA -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2 text-center">ADN del Jugador</h3>
                     <div class="relative h-64 w-full">
@@ -74,27 +70,26 @@
                     </div>
                 </div>
 
-                <!-- 6 STATS PRINCIPALES + TODOS LOS SUB-ATRIBUTOS -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Atributos Detallados</h3>
                     
                     <div class="flex flex-col gap-3">
                         {% if jugador['Posición'] == 'POR' %}
                             {% set stats_list = [
-                                ('EST', 'Estirada', jugador.get('Estirada', 0), [('Estirada', jugador.get('Estirada_Sub', 0))]),
-                                ('PAR', 'Parada', jugador.get('Parada', 0), [('Paradas', jugador.get('Parada_Sub', 0))]),
-                                ('SAQ', 'Saque', jugador.get('Saque', 0), [('Saque Largo', jugador.get('Saque_Sub', 0))]),
-                                ('REF', 'Reflejos', jugador.get('Reflejos', 0), [('Reflejos', jugador.get('Reflejos_Sub', 0)), ('Reacción', jugador.get('Reacción', 0))]),
-                                ('VEL', 'Velocidad', jugador.get('Velocidad_POR', 0), [('Aceleración', jugador.get('Aceleración_POR', 0)), ('Vel. Sprint', jugador.get('Vel_Sprint_POR', 0))]),
-                                ('COL', 'Colocación', jugador.get('Colocación', 0), [('Posicionamiento', jugador.get('Colocación_Sub', 0))])
+                                ('EST', 'Estirada', jugador.get('Estirada', 0), [('Estirada', jugador.get('Estirada_Sub', 0)), ('Salto', jugador.get('Salto_POR', 0)), ('Agilidad', jugador.get('Agilidad_POR', 0)), ('Elasticidad', jugador.get('Elasticidad', 0))]),
+                                ('PAR', 'Parada', jugador.get('Parada', 0), [('Paradas', jugador.get('Paradas_Sub', 0)), ('Seguridad', jugador.get('Seguridad_POR', 0)), ('Blocaje', jugador.get('Blocaje', 0)), ('Anticipación', jugador.get('Anticipacion_POR', 0))]),
+                                ('SAQ', 'Saque', jugador.get('Saque', 0), [('Saque Largo', jugador.get('Saque_Largo', 0)), ('Saque Corto', jugador.get('Saque_Corto', 0)), ('Volea', jugador.get('Volea_POR', 0)), ('Visión', jugador.get('Vision_POR', 0))]),
+                                ('REF', 'Reflejos', jugador.get('Reflejos', 0), [('Reflejos', jugador.get('Reflejos_Sub', 0)), ('Reacción', jugador.get('Reaccion_POR', 0)), ('1 vs 1', jugador.get('UnoVsUno', 0)), ('Recuperación', jugador.get('Recuperacion', 0))]),
+                                ('VEL', 'Velocidad', jugador.get('Velocidad_POR', 0), [('Aceleración', jugador.get('Aceleracion_POR', 0)), ('Vel. Sprint', jugador.get('Sprint_POR', 0)), ('Salidas', jugador.get('Salidas', 0)), ('Impulso', jugador.get('Impulso', 0))]),
+                                ('COL', 'Colocación', jugador.get('Colocación', 0), [('Colocación', jugador.get('Colocacion_Sub', 0)), ('Posicionamiento', jugador.get('Posicionamiento_POR', 0)), ('Cobertura', jugador.get('Cobertura', 0)), ('Concentración', jugador.get('Concentracion_POR', 0))])
                             ] %}
                         {% else %}
                             {% set stats_list = [
-                                ('RIT', 'Ritmo', jugador.get('Ritmo', 0), [('Aceleración', jugador.get('Aceleración', 0)), ('Vel. Sprint', jugador.get('Velocidad_Sprint', 0))]),
-                                ('TIR', 'Tiro', jugador.get('Tiro', 0), [('Posicionamiento', jugador.get('Posicionamiento', 0)), ('Finalización', jugador.get('Finalización', 0)), ('Potencia', jugador.get('Potencia_Tiro', 0)), ('Lejanos', jugador.get('Tiros_Lejanos', 0)), ('Voleas', jugador.get('Voleas', 0)), ('Penaltis', jugador.get('Penaltis', 0))]),
-                                ('PAS', 'Pase', jugador.get('Pase', 0), [('Visión', jugador.get('Visión', 0)), ('Centros', jugador.get('Centros', 0)), ('Faltas', jugador.get('Precisión_Falta', 0)), ('Pase Corto', jugador.get('Pase_Corto', 0)), ('Pase Largo', jugador.get('Pase_Largo', 0)), ('Efecto', jugador.get('Efecto', 0))]),
-                                ('REG', 'Regate', jugador.get('Regate', 0), [('Agilidad', jugador.get('Agilidad', 0)), ('Equilibrio', jugador.get('Equilibrio', 0)), ('Reacciones', jugador.get('Reacciones', 0)), ('Control', jugador.get('Control_Balón', 0)), ('Regates', jugador.get('Regates', 0)), ('Compostura', jugador.get('Compostura', 0))]),
-                                ('DEF', 'Defensa', jugador.get('Defensa', 0), [('Intercepciones', jugador.get('Intercepciones', 0)), ('Cabeza', jugador.get('Precisión_Cabeza', 0)), ('Marcaje', jugador.get('Marcaje', 0)), ('Robos', jugador.get('Robos', 0)), ('Entradas', jugador.get('Entradas', 0))]),
+                                ('RIT', 'Ritmo', jugador.get('Ritmo', 0), [('Aceleración', jugador.get('Aceleración', 0)), ('Vel. Sprint', jugador.get('Vel_Sprint', 0)), ('Agilidad', jugador.get('Agilidad_Ritmo', 0)), ('Reacción', jugador.get('Reaccion_Ritmo', 0))]),
+                                ('TIR', 'Tiro', jugador.get('Tiro', 0), [('Posicionamiento', jugador.get('Posicionamiento', 0)), ('Finalización', jugador.get('Finalización', 0)), ('Potencia Tiro', jugador.get('Potencia_Tiro', 0)), ('Tiros Lejanos', jugador.get('Tiros_Lejanos', 0)), ('Voleas', jugador.get('Voleas', 0)), ('Penaltis', jugador.get('Penaltis', 0))]),
+                                ('PAS', 'Pase', jugador.get('Pase', 0), [('Visión', jugador.get('Vision', 0)), ('Centros', jugador.get('Centros', 0)), ('Prec. Falta', jugador.get('Faltas', 0)), ('Pase Corto', jugador.get('Pase_Corto', 0)), ('Pase Largo', jugador.get('Pase_Largo', 0)), ('Efecto', jugador.get('Efecto', 0))]),
+                                ('REG', 'Regate', jugador.get('Regate', 0), [('Agilidad', jugador.get('Agilidad', 0)), ('Equilibrio', jugador.get('Equilibrio', 0)), ('Reacciones', jugador.get('Reacciones', 0)), ('Control Balón', jugador.get('Control_Balon', 0)), ('Regates', jugador.get('Regates', 0)), ('Compostura', jugador.get('Compostura', 0))]),
+                                ('DEF', 'Defensa', jugador.get('Defensa', 0), [('Intercepciones', jugador.get('Intercepciones', 0)), ('Prec. Cabeza', jugador.get('Cabeza', 0)), ('Marcaje', jugador.get('Marcaje', 0)), ('Robos', jugador.get('Robos', 0)), ('Entradas', jugador.get('Entradas', 0))]),
                                 ('FIS', 'Físico', jugador.get('Físico', 0), [('Salto', jugador.get('Salto', 0)), ('Resistencia', jugador.get('Resistencia', 0)), ('Fuerza', jugador.get('Fuerza', 0)), ('Agresividad', jugador.get('Agresividad', 0))])
                             ] %}
                         {% endif %}
@@ -153,8 +148,8 @@
                     </div>
                 </div>
 
-                <!-- CONTENEDOR CARRUSEL -->
-                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[400px] flex flex-col flex-1 {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
+                <!-- CONTENEDOR CARRUSEL - CORRECCIÓN DE ALTURA -->
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[500px] flex flex-col flex-1 {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
                     {% if tier == 'Aficionado' %}
                     <div class="absolute inset-0 z-20 backdrop-blur-md bg-black/60 rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-8 text-center">
                         <i class="fas fa-lock text-5xl text-gray-600 mb-6"></i>
@@ -167,18 +162,42 @@
                     <button onclick="moverCarrusel(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-black transition"><i class="fas fa-chevron-left"></i></button>
                     <button onclick="moverCarrusel(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-black transition"><i class="fas fa-chevron-right"></i></button>
 
-                    <div class="carousel-slide active w-full h-full px-12" id="slide-0">
+                    <!-- GRÁFICO 1: OVR -->
+                    <div class="carousel-slide active w-full h-full flex-1 px-12" id="slide-0">
                         <h3 class="text-lg font-black text-green-500 text-center uppercase tracking-widest mb-4">Evolución de OVR</h3>
-                        <div class="relative h-64 w-full"><canvas id="chartCrecimiento"></canvas></div>
+                        <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartCrecimiento"></canvas></div>
                     </div>
 
-                    <div class="carousel-slide w-full h-full px-12" id="slide-1">
+                    <!-- GRÁFICO 2: FINANCIERO -->
+                    <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-1">
                         <h3 class="text-lg font-black text-blue-500 text-center uppercase tracking-widest mb-4">Revalorización (M€)</h3>
-                        <div class="relative h-64 w-full"><canvas id="chartFinanciero"></canvas></div>
+                        <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartFinanciero"></canvas></div>
+                    </div>
+                    
+                    <!-- GRÁFICO 3: POLAR -->
+                    <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-2">
+                        <h3 class="text-lg font-black text-purple-500 text-center uppercase tracking-widest mb-4">Distribución de Atributos</h3>
+                        <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartPolar"></canvas></div>
+                    </div>
+
+                    <!-- GRÁFICO 4: COMPARATIVA BARRAS -->
+                    <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-3">
+                        <h3 class="text-lg font-black text-yellow-500 text-center uppercase tracking-widest mb-4">Perfil vs Media de Liga</h3>
+                        <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartComparativa"></canvas></div>
+                    </div>
+
+                    <!-- GRÁFICO 5: DOUGHNUT ÉXITO -->
+                    <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-4">
+                        <h3 class="text-lg font-black text-teal-500 text-center uppercase tracking-widest mb-4">Probabilidad de Éxito Comercial</h3>
+                        <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartGanga"></canvas></div>
+                        <div class="text-center text-gray-400 text-xs mt-2">Basado en el algoritmo de Ganga Score</div>
                     </div>
 
                     <div class="absolute bottom-20 left-0 right-0 flex justify-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-green-500 dot"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-600 dot"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-600 dot"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-600 dot"></div>
                         <div class="w-2 h-2 rounded-full bg-gray-600 dot"></div>
                     </div>
 
@@ -193,7 +212,6 @@
     </div>
 
     <script>
-        // Carrusel
         let slideIndex = 0; const slides = document.querySelectorAll('.carousel-slide'); const dots = document.querySelectorAll('.dot');
         function moverCarrusel(n) {
             slides[slideIndex].classList.remove('active'); dots[slideIndex].classList.replace('bg-green-500', 'bg-gray-600');
@@ -201,7 +219,7 @@
             slides[slideIndex].classList.add('active'); dots[slideIndex].classList.replace('bg-gray-600', 'bg-green-500');
         }
 
-        // Radar Chart
+        // Radar Chart Principal
         const esPortero = "{{ jugador['Posición'] }}" === "POR";
         const radarLabels = esPortero 
             ? ['Estirada', 'Parada', 'Saque', 'Reflejos', 'Velocidad', 'Colocación'] 
@@ -216,13 +234,28 @@
             options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 99, ticks: { display: false }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, angleLines: { color: 'rgba(255, 255, 255, 0.1)' }, pointLabels: { color: '#9ca3af', font: { size: 11, weight: 'bold' } } } }, plugins: { legend: { display: false } } }
         });
 
+        // 5 Gráficos VIP
         {% if tier != 'Aficionado' %}
         const media = {{ jugador['Media'] | int }}; const pot = {{ jugador['Potencial'] | int }}; const paso = Math.max(1, Math.round((pot - media) / 4));
         const lbls = ['T1', 'T2', 'T3', 'T4', 'Prime'];
-        new Chart(document.getElementById('chartCrecimiento').getContext('2d'), { type: 'line', data: { labels: lbls, datasets: [{ label: 'OVR', data: [media, media+paso, media+(paso*2), media+(paso*3), pot], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.4 }] }, options: { plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#333'}, ticks:{color:'#888'} }, x:{ grid:{display:false}, ticks:{color:'#888'} } } } });
+        
+        // 1. Line OVR
+        new Chart(document.getElementById('chartCrecimiento').getContext('2d'), { type: 'line', data: { labels: lbls, datasets: [{ label: 'OVR', data: [media, media+paso, media+(paso*2), media+(paso*3), pot], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#333'}, ticks:{color:'#888'} }, x:{ grid:{display:false}, ticks:{color:'#888'} } } } });
 
+        // 2. Bar Finanzas
         const vBase = {{ jugador.get('Valor Real (€)', 0) | int }} / 1000000; const vPot = vBase * ((100 + {{ jugador.get('ROI (%)', 0) | float }}) / 100); const pFin = (vPot - vBase) / 4;
-        new Chart(document.getElementById('chartFinanciero').getContext('2d'), { type: 'bar', data: { labels: lbls, datasets: [{ label: 'M€', data: [vBase.toFixed(1), (vBase+pFin).toFixed(1), (vBase+pFin*2).toFixed(1), (vBase+pFin*3).toFixed(1), vPot.toFixed(1)], backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#333'}, ticks:{color:'#888'} }, x:{ grid:{display:false}, ticks:{color:'#888'} } } } });
+        new Chart(document.getElementById('chartFinanciero').getContext('2d'), { type: 'bar', data: { labels: lbls, datasets: [{ label: 'M€', data: [vBase.toFixed(1), (vBase+pFin).toFixed(1), (vBase+pFin*2).toFixed(1), (vBase+pFin*3).toFixed(1), vPot.toFixed(1)], backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#333'}, ticks:{color:'#888'} }, x:{ grid:{display:false}, ticks:{color:'#888'} } } } });
+
+        // 3. Polar Area Distribución
+        new Chart(document.getElementById('chartPolar').getContext('2d'), { type: 'polarArea', data: { labels: radarLabels, datasets: [{ data: radarData, backgroundColor: ['rgba(34,197,94,0.6)', 'rgba(59,130,246,0.6)', 'rgba(168,85,247,0.6)', 'rgba(234,179,8,0.6)', 'rgba(239,68,68,0.6)', 'rgba(14,165,233,0.6)'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { display: false } }, plugins: { legend: { position: 'right', labels: {color: '#9ca3af'} } } } });
+
+        // 4. Barras Comparativa Liga
+        const mediaStats = esPortero ? [70, 72, 68, 74, 40, 65] : [72, 65, 68, 70, 60, 68];
+        new Chart(document.getElementById('chartComparativa').getContext('2d'), { type: 'bar', data: { labels: radarLabels, datasets: [{ label: 'Jugador', data: radarData, backgroundColor: '#eab308', borderRadius: 4 }, { label: 'Media Posición', data: mediaStats, backgroundColor: '#4b5563', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: '#333' }, ticks: { color: '#888' } }, x: { grid: { display: false }, ticks: { color: '#888' } } }, plugins: { legend: { position: 'top', labels: {color: '#9ca3af'} } } } });
+
+        // 5. Doughnut Éxito
+        const ganga = {{ jugador.get('Ganga Score', 0) | float }};
+        new Chart(document.getElementById('chartGanga').getContext('2d'), { type: 'doughnut', data: { labels: ['Éxito', 'Riesgo'], datasets: [{ data: [ganga * 10, 100 - (ganga * 10)], backgroundColor: ['#14b8a6', '#ef4444'], borderWidth: 0, cutout: '75%' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: {color: '#9ca3af'} } } } });
         {% endif %}
     </script>
 </body>

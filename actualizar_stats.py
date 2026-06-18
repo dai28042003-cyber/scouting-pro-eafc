@@ -6,7 +6,6 @@ for j in jugadores:
     ovr = j['Media']
     
     if is_gk:
-        # Atributos principales de portero
         j['Estirada'] = j.get('Ritmo', ovr + 2)
         j['Parada'] = j.get('Tiro', ovr - 1)
         j['Saque'] = j.get('Pase', ovr)
@@ -14,17 +13,38 @@ for j in jugadores:
         j['Velocidad_POR'] = j.get('Defensa', 45)
         j['Colocación'] = j.get('Físico', ovr - 2)
         
-        # Sub-atributos de portero
+        # 4 Sub-atributos de POR
         j['Estirada_Sub'] = int(j['Estirada']) + 1
-        j['Parada_Sub'] = int(j['Parada'])
-        j['Saque_Sub'] = int(j['Saque'])
+        j['Salto_POR'] = int(j['Estirada']) - 3
+        j['Agilidad_POR'] = int(j['Reflejos']) - 2
+        j['Elasticidad'] = int(j['Estirada']) + 2
+        
+        j['Paradas_Sub'] = int(j['Parada']) + 2
+        j['Seguridad_POR'] = int(j['Parada']) - 1
+        j['Blocaje'] = int(j['Parada']) + 3
+        j['Anticipacion_POR'] = int(j['Colocación']) - 2
+        
+        j['Saque_Largo'] = int(j['Saque']) + 2
+        j['Saque_Corto'] = int(j['Saque']) - 1
+        j['Volea_POR'] = int(j['Saque']) - 4
+        j['Vision_POR'] = int(j['Saque']) + 3
+        
         j['Reflejos_Sub'] = int(j['Reflejos']) + 1
-        j['Reacción'] = int(j['Reflejos']) - 2
-        j['Aceleración_POR'] = int(j['Velocidad_POR']) + 2
-        j['Vel_Sprint_POR'] = int(j['Velocidad_POR']) - 2
-        j['Colocación_Sub'] = int(j['Colocación'])
+        j['Reaccion_POR'] = int(j['Reflejos']) - 2
+        j['UnoVsUno'] = int(j['Reflejos']) + 3
+        j['Recuperacion'] = int(j['Reflejos']) - 1
+        
+        j['Aceleracion_POR'] = int(j['Velocidad_POR']) + 3
+        j['Sprint_POR'] = int(j['Velocidad_POR']) - 2
+        j['Salidas'] = int(j['Velocidad_POR']) + 5
+        j['Impulso'] = int(j['Velocidad_POR']) + 1
+        
+        j['Colocacion_Sub'] = int(j['Colocación']) + 2
+        j['Posicionamiento_POR'] = int(j['Colocación']) + 1
+        j['Cobertura'] = int(j['Colocación']) - 3
+        j['Concentracion_POR'] = ovr - 2
+        
     else:
-        # Atributos principales jugador de campo
         ritmo = int(j.get('Ritmo', ovr))
         tiro = int(j.get('Tiro', ovr - 5))
         pase = int(j.get('Pase', ovr - 2))
@@ -32,11 +52,12 @@ for j in jugadores:
         defensa = int(j.get('Defensa', 50))
         fisico = int(j.get('Físico', 65))
         
-        # Ritmo
+        # 4 a 6 Sub-atributos de Jugador de Campo
         j['Aceleración'] = ritmo + 2 if j['Posición'] in ['EI', 'ED', 'LI', 'LD'] else ritmo - 1
-        j['Velocidad_Sprint'] = ritmo - 2 if j['Posición'] in ['EI', 'ED'] else ritmo + 1
+        j['Vel_Sprint'] = ritmo - 2 if j['Posición'] in ['EI', 'ED'] else ritmo + 1
+        j['Agilidad_Ritmo'] = regate + 2
+        j['Reaccion_Ritmo'] = ovr - 1
         
-        # Tiro
         j['Posicionamiento'] = tiro + 5 if 'DC' in j['Posición'] else tiro - 2
         j['Finalización'] = tiro + 3 if 'DC' in j['Posición'] else tiro - 4
         j['Potencia_Tiro'] = tiro + 1
@@ -44,30 +65,26 @@ for j in jugadores:
         j['Voleas'] = tiro - 5
         j['Penaltis'] = tiro - 1
         
-        # Pase
-        j['Visión'] = pase + 3 if 'MCO' in j['Posición'] else pase - 1
+        j['Vision'] = pase + 3 if 'MCO' in j['Posición'] else pase - 1
         j['Centros'] = pase + 5 if j['Posición'] in ['EI', 'ED', 'LI', 'LD'] else pase - 4
-        j['Precisión_Falta'] = pase - 3
+        j['Faltas'] = pase - 3
         j['Pase_Corto'] = pase + 4 if 'MC' in j['Posición'] else pase + 1
         j['Pase_Largo'] = pase - 2
         j['Efecto'] = pase - 1
         
-        # Regate
         j['Agilidad'] = regate + 4 if j['Posición'] in ['EI', 'ED', 'MCO'] else regate - 3
         j['Equilibrio'] = regate + 1
         j['Reacciones'] = ovr - 2
-        j['Control_Balón'] = regate + 2
+        j['Control_Balon'] = regate + 2
         j['Regates'] = regate + 3 if j['Posición'] in ['EI', 'ED'] else regate - 1
         j['Compostura'] = ovr - 3
         
-        # Defensa
         j['Intercepciones'] = defensa + 1
-        j['Precisión_Cabeza'] = defensa + 4 if 'DFC' in j['Posición'] else defensa - 5
+        j['Cabeza'] = defensa + 4 if 'DFC' in j['Posición'] else defensa - 5
         j['Marcaje'] = defensa - 1
         j['Robos'] = defensa + 2 if 'DFC' in j['Posición'] else defensa
         j['Entradas'] = defensa + 1
         
-        # Físico
         j['Salto'] = fisico + 5 if 'DFC' in j['Posición'] else fisico - 2
         j['Resistencia'] = fisico + 8 if 'MC' in j['Posición'] or 'LI' in j['Posición'] else fisico + 1
         j['Fuerza'] = fisico + 5 if 'DFC' in j['Posición'] else fisico - 4
