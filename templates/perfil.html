@@ -2,324 +2,290 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{{ jugador.get('Nombre', 'Perfil') }} | Scouting PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ jugador['Nombre'] }} - Scouting PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>body { font-family: 'Rajdhani', sans-serif; }</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .carousel-slide { display: none; transition: opacity 0.3s ease-in-out; }
+        .carousel-slide.active { display: block; }
+    </style>
 </head>
-<body class="bg-gray-950 text-white antialiased min-h-screen">
+<body class="bg-black text-white font-sans min-h-screen pb-10">
 
-    <nav class="bg-gray-900 border-b border-gray-800 p-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="/dashboard" class="flex items-center text-gray-400 hover:text-white transition font-bold">
-                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Volver al Hub
-            </a>
-            <h1 class="text-xl font-black tracking-tighter">SCOUTING<span class="text-green-500">PRO</span></h1>
-        </div>
+    <nav class="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-900">
+        <a href="/dashboard" class="text-green-500 hover:text-white transition font-bold">
+            <i class="fas fa-arrow-left mr-2"></i> Volver al Radar
+        </a>
+        <div class="text-xl font-black tracking-widest uppercase">SCOUTING<span class="text-green-500">PRO</span></div>
     </nav>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="max-w-5xl mx-auto mt-4 px-6 z-50 relative">
-                <div class="bg-gray-900 border border-green-500 text-green-400 px-4 py-3 rounded-lg text-sm font-bold flex items-center justify-between shadow-lg">
-                    <span>{{ messages[0] }}</span>
-                </div>
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <main class="max-w-5xl mx-auto p-6 mt-4 pb-20">
-        <div class="bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 mt-8">
+        
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8 mb-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-green-500 opacity-10 blur-[100px] pointer-events-none"></div>
             
-            <div class="absolute -right-10 -top-10 opacity-5 pointer-events-none">
-                <h2 class="text-[15rem] font-black leading-none">{{ jugador.get('Media', 0) }}</h2>
+            <img src="{{ jugador['Foto'] }}" alt="{{ jugador['Nombre'] }}" class="w-40 h-40 rounded-full border-4 border-gray-800 shadow-xl object-cover bg-gray-800">
+            
+            <div class="flex-1 text-center md:text-left z-10">
+                <div class="flex items-center justify-center md:justify-start gap-4 mb-2">
+                    <h1 class="text-4xl font-black uppercase tracking-wider">{{ jugador['Nombre'] }}</h1>
+                    <span class="bg-gray-800 text-gray-300 px-3 py-1 rounded-md font-bold text-sm border border-gray-700">{{ jugador['Nacionalidad'] }}</span>
+                </div>
+                <p class="text-xl text-gray-400 font-medium mb-4">{{ jugador['Equipo'] }} • {{ jugador['Edad'] }} años • <span class="text-green-500">{{ jugador['Posición'] }}</span></p>
+                
+                <form action="/favorito/{{ jugador['Nombre'] }}" method="POST" class="inline-block">
+                    <button type="submit" class="px-6 py-2 rounded-lg font-bold text-sm transition-all border 
+                        {% if es_favorito %} bg-red-500/10 text-red-500 border-red-500 hover:bg-red-500 hover:text-white
+                        {% else %} bg-gray-800 text-white border-gray-700 hover:border-green-500 hover:text-green-500 {% endif %}">
+                        <i class="fas {% if es_favorito %}fa-heart-crack{% else %}fa-heart{% endif %} mr-2"></i>
+                        {% if es_favorito %} Quitar de mi libreta {% else %} Guardar en seguimiento {% endif %}
+                    </button>
+                </form>
             </div>
 
-            <div class="flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
-                
-                <div class="w-48 h-64 bg-gray-950 border-2 border-gray-600 rounded-2xl flex flex-col items-center justify-start shadow-inner relative flex-shrink-0 overflow-hidden">
-                    <div class="absolute top-4 left-4 flex flex-col items-center z-10 bg-gray-950/80 p-2 rounded-lg backdrop-blur-sm border border-gray-800">
-                        <span class="font-black text-4xl text-yellow-500 leading-none">{{ jugador.get('Media', 0) }}</span>
-                        <span class="text-xs font-bold text-gray-400 uppercase mt-1">{{ jugador.get('Posición', 'POS') }}</span>
-                    </div>
-                    <img src="{{ jugador.get('Foto', '') }}" alt="Foto de {{ jugador['Nombre'] }}" class="w-full h-full object-cover">
+            <div class="flex gap-4 z-10">
+                <div class="bg-gray-800 rounded-xl p-4 w-24 text-center border border-gray-700 shadow-lg">
+                    <div class="text-xs text-gray-400 uppercase tracking-widest mb-1">OVR</div>
+                    <div class="text-3xl font-black text-white">{{ jugador['Media'] }}</div>
                 </div>
-
-                <div class="flex-1 w-full">
-                    
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4 w-full overflow-hidden">
-                        <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tight leading-none truncate w-full sm:w-auto">{{ jugador.get('Nombre', 'Desconocido') }}</h2>
-                        
-                        <form action="/favorito/{{ jugador.get('Nombre', '') }}" method="POST" class="flex-shrink-0">
-                            {% if es_favorito %}
-                                <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-yellow-400 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.4)]" title="Dejar de seguir">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    Siguiendo
-                                </button>
-                            {% else %}
-                                <button type="submit" class="bg-gray-800 text-gray-400 border border-gray-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-700 hover:text-white transition-colors" title="Añadir a seguimiento">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                                    Guardar
-                                </button>
-                            {% endif %}
-                        </form>
-                    </div>
-                    
-                    <div class="flex flex-wrap items-center gap-3 text-sm font-bold text-gray-400 uppercase tracking-wider mb-6">
-                        <span class="flex items-center bg-gray-950 px-3 py-1 rounded-md border border-gray-800">
-                            ⚽ {{ jugador.get('Equipo', 'Desconocido') }}
-                        </span>
-                        <span class="flex items-center bg-gray-950 px-3 py-1 rounded-md border border-gray-800">
-                            🌍 {{ jugador.get('Nacionalidad', 'Desconocido') }}
-                        </span>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-                        <div class="bg-gray-950 p-4 rounded-xl border border-gray-800">
-                            <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Edad Actual</span>
-                            <span class="text-2xl font-black">{{ jugador.get('Edad', 0) }} Años</span>
-                        </div>
-                        <div class="bg-gray-950 p-4 rounded-xl border border-gray-800">
-                            <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Potencial</span>
-                            <span class="text-2xl font-black text-yellow-500">{{ jugador.get('Potencial', 0) }} <span class="text-sm text-green-400 font-bold">(+{{ jugador.get('Margen de Crecimiento', 0) }})</span></span>
-                        </div>
-                        <div class="col-span-2 lg:col-span-1 bg-gray-950 p-4 rounded-xl border border-gray-800">
-                            <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Valor Estimado</span>
-                            <span class="text-2xl font-mono text-green-400">€ {{ "{:,.0f}".format(jugador.get('Valor Real (€)', 0)).replace(',', '.') }}</span>
-                        </div>
-                    </div>
+                <div class="bg-green-500/10 rounded-xl p-4 w-24 text-center border border-green-500/30 shadow-lg">
+                    <div class="text-xs text-green-500 uppercase tracking-widest mb-1">POT</div>
+                    <div class="text-3xl font-black text-green-400">{{ jugador['Potencial'] }}</div>
                 </div>
-            </div>
-
-            <div class="mt-10 border-t border-gray-700/50 pt-8">
-                <h3 class="text-2xl font-black uppercase tracking-wide text-white mb-6 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                    Centro de Datos Analítico
-                </h3>
-
-                {% if tier != 'Aficionado' %}
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-green-500/10 border border-green-500/30 p-6 rounded-xl relative overflow-hidden">
-                        <span class="block text-sm text-green-400 uppercase font-black tracking-widest mb-2 z-10 relative">Ganga Score</span>
-                        <div class="text-6xl font-black text-white z-10 relative">{{ jugador.get('Ganga Score', 'N/A') }}<span class="text-2xl text-green-500/50">/10</span></div>
-                        <p class="text-sm font-sans text-gray-400 mt-2 z-10 relative">Relación calidad/precio actual comparada con el mercado.</p>
-                        <svg class="w-32 h-32 text-green-500/10 absolute -bottom-4 -right-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"></path></svg>
-                    </div>
-                    <div class="bg-blue-500/10 border border-blue-500/30 p-6 rounded-xl relative overflow-hidden">
-                        <span class="block text-sm text-blue-400 uppercase font-black tracking-widest mb-2 z-10 relative">ROI Estimado (Retorno)</span>
-                        <div class="text-6xl font-black text-white z-10 relative">+{{ jugador.get('ROI (%)', 'N/A') }}%</div>
-                        <p class="text-sm font-sans text-gray-400 mt-2 z-10 relative">Beneficio porcentual estimado al alcanzar su potencial máximo.</p>
-                        <svg class="w-32 h-32 text-blue-500/10 absolute -bottom-4 -right-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                    
-                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner">
-                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center">Perfil de Atributos (Base)</span>
-                        <div class="w-full h-64 relative flex justify-center">
-                            <canvas id="radarChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner">
-                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center">Curva de Desarrollo de Media (OVR)</span>
-                        <div class="w-full h-64 relative">
-                            <canvas id="growthChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner">
-                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center">Proyección de Valor de Mercado (€)</span>
-                        <div class="w-full h-64 relative">
-                            <canvas id="marketValueChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-inner flex flex-col items-center">
-                        <span class="block text-sm text-gray-400 uppercase font-bold tracking-wider mb-6 text-center w-full">Índice de Viabilidad (Éxito vs Riesgo)</span>
-                        <div class="w-full h-48 relative flex justify-center mt-4">
-                            <canvas id="riskSuccessChart"></canvas>
-                        </div>
-                        <p class="text-[10px] text-gray-500 font-sans mt-6 text-center max-w-xs">El riesgo se calcula combinando la edad del jugador y el margen de crecimiento restante.</p>
-                    </div>
-
-                </div>
-                
-                {% else %}
-                <div class="bg-gray-950 border border-gray-800 p-8 rounded-2xl text-center relative overflow-hidden shadow-2xl min-h-[380px]">
-                    <div class="absolute inset-0 flex items-center justify-center bg-gray-950/85 z-10 flex-col backdrop-blur-md p-6">
-                        <span class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 mt-4">Requiere Licencia Pro</span>
-                        <h4 class="text-2xl font-black uppercase mb-2">Centro de Datos Bloqueado</h4>
-                        <p class="text-gray-400 mb-8 font-sans max-w-md mx-auto">Sube de nivel para acceder al panel de 4 gráficos interactivos, simulador de precios y análisis de viabilidad.</p>
-                        
-                        <a href="/checkout/profesional" class="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-105 hover:-translate-y-1 mb-4">
-                            Desbloquear con Modo Dios
-                        </a>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-6 opacity-20 select-none blur-md pointer-events-none mb-6">
-                        <div>
-                            <span class="block text-sm uppercase font-bold mb-2">Ganga Score</span>
-                            <div class="text-6xl font-black">9.8/10</div>
-                        </div>
-                        <div>
-                            <span class="block text-sm uppercase font-bold mb-2">ROI Estimado</span>
-                            <div class="text-6xl font-black">+450%</div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
             </div>
         </div>
-    </main>
 
-    {% if tier != 'Aficionado' %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1 flex flex-col gap-6">
+                
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Perfil del Jugador</h3>
+                    
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-gray-400">Pierna Mala</span>
+                        <span class="text-yellow-400 font-bold tracking-widest">
+                            {% for i in range((jugador.get('Pierna Mala', 3))|int) %}★{% endfor %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-gray-400">Filigranas</span>
+                        <span class="text-yellow-400 font-bold tracking-widest">
+                            {% for i in range((jugador.get('Filigranas', 3))|int) %}★{% endfor %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-gray-400">Rendimiento (A/D)</span>
+                        <span class="text-white font-medium">{{ jugador.get('Rendimiento', 'Medio/Medio') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-800">
+                        <span class="text-gray-400 font-medium">Valor Mercado</span>
+                        <span class="text-green-400 font-bold text-lg">{{ "{:,.0f}".format(jugador.get('Valor Real (€)', 0)|int).replace(',', '.') }} €</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Atributos Base</h3>
+                    
+                    {% set stats = [
+                        ('RIT', 'Ritmo', jugador.get('Ritmo', '--')),
+                        ('TIR', 'Tiro', jugador.get('Tiro', '--')),
+                        ('PAS', 'Pase', jugador.get('Pase', '--')),
+                        ('REG', 'Regate', jugador.get('Regate', '--')),
+                        ('DEF', 'Defensa', jugador.get('Defensa', '--')),
+                        ('FIS', 'Físico', jugador.get('Físico', '--'))
+                    ] %}
+
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-4">
+                        {% for etiqueta, nombre, valor in stats %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400 font-bold text-sm">{{ etiqueta }}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-lg 
+                                    {% if valor != '--' %}
+                                        {% if (valor|int) >= 80 %} text-green-500
+                                        {% elif (valor|int) >= 70 %} text-yellow-500
+                                        {% else %} text-red-500 {% endif %}
+                                    {% else %} text-gray-600 {% endif %}">
+                                    {{ valor }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 relative">
+                
+                {% if tier == 'Aficionado' %}
+                <div class="absolute inset-0 z-20 backdrop-blur-md bg-black/60 rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-8 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+                    <i class="fas fa-lock text-5xl text-gray-600 mb-6 drop-shadow-lg"></i>
+                    <h2 class="text-3xl font-black uppercase tracking-widest mb-2 text-white">Centro de Datos Bloqueado</h2>
+                    <p class="text-gray-400 mb-8 max-w-md text-lg">La analítica de crecimiento, proyección salarial y gráficas predictivas son exclusivas para <span class="text-green-500 font-bold">Mánagers Pro</span>.</p>
+                    <a href="/checkout/profesional" class="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-105">
+                        <i class="fas fa-unlock mr-2"></i> Desbloquear con Modo Dios
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[450px] flex flex-col {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
+                    
+                    <button onclick="moverCarrusel(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-green-500 text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition border border-gray-700 shadow-lg">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button onclick="moverCarrusel(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-green-500 text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition border border-gray-700 shadow-lg">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+
+                    <div class="carousel-slide active w-full h-full px-12" id="slide-0">
+                        <div class="text-center mb-4">
+                            <h3 class="text-lg font-black text-green-500 uppercase tracking-widest">Proyección de Crecimiento (OVR)</h3>
+                            <p class="text-xs text-gray-400">Evolución estimada temporada a temporada</p>
+                        </div>
+                        <div class="relative h-72 w-full">
+                            <canvas id="chartCrecimiento"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="carousel-slide w-full h-full px-12" id="slide-1">
+                        <div class="text-center mb-4">
+                            <h3 class="text-lg font-black text-blue-500 uppercase tracking-widest">Proyección de Valor de Mercado</h3>
+                            <p class="text-xs text-gray-400">Estimación de revalorización en millones de €</p>
+                        </div>
+                        <div class="relative h-72 w-full">
+                            <canvas id="chartFinanciero"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500 dot transition-all"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-600 dot transition-all"></div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mt-auto pt-6 border-t border-gray-800">
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 uppercase mb-1">ROI Proyectado</div>
+                            <div class="text-xl font-bold text-white">+{{ jugador.get('ROI (%)', 0) }}%</div>
+                        </div>
+                        <div class="text-center border-l border-r border-gray-800">
+                            <div class="text-xs text-gray-500 uppercase mb-1">Ganga Score</div>
+                            <div class="text-xl font-bold text-green-400">{{ jugador.get('Ganga Score', 0) }}/10</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 uppercase mb-1">Margen Mejora</div>
+                            <div class="text-xl font-bold text-white">+{{ jugador.get('Margen de Crecimiento', 0) }} Pts</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Recogida de datos ocultos en Jinja para usarlos en JS
-            const mediaActual = Number("{{ jugador.get('Media', 70) }}");
-            const potencial = Number("{{ jugador.get('Potencial', 80) }}");
-            const edadActual = Number("{{ jugador.get('Edad', 18) }}");
-            const pos = "{{ jugador.get('Posición', 'MC') }}";
-            const valorActual = Number("{{ jugador.get('Valor Real (€)', 0) }}");
-            const roi = Number("{{ jugador.get('ROI (%)', 0) }}");
-            const margen = Number("{{ jugador.get('Margen de Crecimiento', 0) }}");
+        // Lógica del Carrusel
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function moverCarrusel(n) {
+            slides[slideIndex].classList.remove('active');
+            dots[slideIndex].classList.remove('bg-green-500');
+            dots[slideIndex].classList.add('bg-gray-600');
             
-            Chart.defaults.color = '#9ca3af';
-            Chart.defaults.font.family = 'Rajdhani';
+            slideIndex += n;
+            
+            if (slideIndex >= slides.length) slideIndex = 0;
+            if (slideIndex < 0) slideIndex = slides.length - 1;
+            
+            slides[slideIndex].classList.add('active');
+            dots[slideIndex].classList.remove('bg-gray-600');
+            dots[slideIndex].classList.add('bg-green-500');
+        }
 
-            // ==========================================
-            // 1. RADAR CHART
-            // ==========================================
-            let stats = [];
-            let labelsRadar = [];
+        // --- RENDERIZADO DE GRÁFICOS ---
+        {% if tier != 'Aficionado' %}
+        
+        // Datos para las gráficas protegidos con int para evitar fallos de renderizado JS
+        const mediaActual = {{ jugador['Media'] | int }};
+        const potencial = {{ jugador['Potencial'] | int }};
+        const edadActual = {{ jugador['Edad'] | int }};
+        const margen = potencial - mediaActual;
+        const paso = Math.max(1, Math.round(margen / 4));
+        
+        const labelsEdades = [
+            `Temp 1 (${edadActual}a)`, 
+            `Temp 2 (${edadActual+1}a)`, 
+            `Temp 3 (${edadActual+2}a)`, 
+            `Temp 4 (${edadActual+3}a)`, 
+            `Prime (${edadActual+4}a)`
+        ];
 
-            if (pos.includes('POR')) {
-                labelsRadar = ['EST', 'PAR', 'SAQ', 'REF', 'VEL', 'POS'];
-                stats = [mediaActual+3, mediaActual-2, mediaActual+1, mediaActual+4, Math.max(30, mediaActual-30), mediaActual];
-            } else if (pos.includes('DFC') || pos.includes('LI') || pos.includes('LD')) {
-                labelsRadar = ['RIT', 'TIR', 'PAS', 'REG', 'DEF', 'FÍS'];
-                stats = [mediaActual-5, Math.max(30, mediaActual-25), mediaActual-5, mediaActual-5, mediaActual+6, mediaActual+5];
-            } else if (pos.includes('MC') || pos.includes('MCD')) {
-                labelsRadar = ['RIT', 'TIR', 'PAS', 'REG', 'DEF', 'FÍS'];
-                stats = [mediaActual-3, mediaActual-5, mediaActual+5, mediaActual+3, mediaActual-2, mediaActual];
-            } else { 
-                labelsRadar = ['RIT', 'TIR', 'PAS', 'REG', 'DEF', 'FÍS'];
-                stats = [mediaActual+7, mediaActual+4, mediaActual-4, mediaActual+6, Math.max(30, mediaActual-35), mediaActual-5];
+        // 1. GRÁFICO DE CRECIMIENTO
+        const ctxCrecimiento = document.getElementById('chartCrecimiento').getContext('2d');
+        new Chart(ctxCrecimiento, {
+            type: 'line',
+            data: {
+                labels: labelsEdades,
+                datasets: [{
+                    label: 'OVR Esperado',
+                    data: [mediaActual, mediaActual+paso, mediaActual+(paso*2), mediaActual+(paso*3), potencial],
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: mediaActual - 2, max: potencial + 2, grid: { color: '#333' }, ticks: { color: '#888' } },
+                    x: { grid: { display: false }, ticks: { color: '#888' } }
+                }
             }
-            stats = stats.map(s => Math.min(99, Math.max(30, s)));
-
-            new Chart(document.getElementById('radarChart').getContext('2d'), {
-                type: 'radar',
-                data: {
-                    labels: labelsRadar,
-                    datasets: [{
-                        label: 'Atributos Base',
-                        data: stats,
-                        backgroundColor: 'rgba(234, 179, 8, 0.2)',
-                        borderColor: '#eab308',
-                        pointBackgroundColor: '#eab308',
-                        pointHoverBackgroundColor: '#fff',
-                        borderWidth: 2,
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(55, 65, 81, 0.5)' },
-                            grid: { color: 'rgba(55, 65, 81, 0.5)' },
-                            pointLabels: { color: '#9ca3af', font: { size: 12, weight: 'bold' } },
-                            ticks: { display: false, min: 20, max: 100 }
-                        }
-                    }
-                }
-            });
-
-            // ==========================================
-            // 2. LINE CHART (CRECIMIENTO OVR)
-            // ==========================================
-            const difLine = potencial - mediaActual;
-            new Chart(document.getElementById('growthChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: [edadActual, edadActual + 1, edadActual + 2, edadActual + 3 + '+'],
-                    datasets: [{
-                        label: 'OVR',
-                        data: [mediaActual, mediaActual + Math.round(difLine*0.4), mediaActual + Math.round(difLine*0.8), potencial],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#3b82f6',
-                        tension: 0.4, fill: true
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: 'rgba(55, 65, 81, 0.3)' } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-
-            // ==========================================
-            // 3. BAR CHART (PROYECCIÓN DE VALOR)
-            // ==========================================
-            const valorFinal = valorActual * (1 + (roi / 100));
-            new Chart(document.getElementById('marketValueChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Actual ('+edadActual+' años)', 'Fase de Pico', 'Potencial Máx ('+potencial+')'],
-                    datasets: [{
-                        label: 'Valor €',
-                        data: [valorActual, valorActual + ((valorFinal - valorActual) * 0.5), valorFinal],
-                        backgroundColor: ['rgba(55, 65, 81, 0.6)', 'rgba(34, 197, 94, 0.4)', 'rgba(34, 197, 94, 0.9)'],
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { display: false },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-
-            // ==========================================
-            // 4. DOUGHNUT CHART (RIESGO VS ÉXITO)
-            // ==========================================
-            let exito = 100 - (margen * 1.5) + ((edadActual - 16) * 1.5);
-            exito = Math.min(95, Math.max(25, exito));
-            
-            new Chart(document.getElementById('riskSuccessChart').getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Probabilidad de Éxito', 'Riesgo de Estancamiento'],
-                    datasets: [{
-                        data: [exito, 100 - exito],
-                        backgroundColor: ['#22c55e', '#ef4444'],
-                        borderColor: '#111827',
-                        borderWidth: 4,
-                        hoverOffset: 5
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    cutout: '75%',
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
         });
+
+        // 2. GRÁFICO FINANCIERO
+        const valorBase = {{ jugador.get('Valor Real (€)', 0) | int }} / 1000000;
+        const roiMultiplicador = (100 + {{ jugador.get('ROI (%)', 0) | float }}) / 100;
+        const valorPotencial = valorBase * roiMultiplicador;
+        const pasoFinanciero = (valorPotencial - valorBase) / 4;
+
+        const ctxFinanciero = document.getElementById('chartFinanciero').getContext('2d');
+        new Chart(ctxFinanciero, {
+            type: 'bar',
+            data: {
+                labels: labelsEdades,
+                datasets: [{
+                    label: 'Valor de Mercado (M€)',
+                    data: [
+                        valorBase.toFixed(1), 
+                        (valorBase + pasoFinanciero).toFixed(1), 
+                        (valorBase + pasoFinanciero*2).toFixed(1), 
+                        (valorBase + pasoFinanciero*3).toFixed(1), 
+                        valorPotencial.toFixed(1)
+                    ],
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: '#333' }, ticks: { color: '#888', callback: function(value){return value+'M€';} } },
+                    x: { grid: { display: false }, ticks: { color: '#888' } }
+                }
+            }
+        });
+        {% endif %}
     </script>
-    {% endif %}
 </body>
 </html>
