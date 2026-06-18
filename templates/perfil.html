@@ -10,6 +10,9 @@
     <style>
         .carousel-slide { display: none; transition: opacity 0.3s ease-in-out; }
         .carousel-slide.active { display: block; }
+        /* Animación para los acordeones de sub-atributos */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
     </style>
 </head>
 <body class="bg-black text-white font-sans min-h-screen pb-10">
@@ -33,7 +36,7 @@
                     <h1 class="text-4xl font-black uppercase tracking-wider">{{ jugador['Nombre'] }}</h1>
                     <span class="bg-gray-800 text-gray-300 px-3 py-1 rounded-md font-bold text-sm border border-gray-700">{{ jugador['Nacionalidad'] }}</span>
                 </div>
-                <p class="text-xl text-gray-400 font-medium mb-4">{{ jugador['Equipo'] }} • {{ jugador['Edad'] }} años • <span class="text-green-500">{{ jugador['Posición'] }}</span></p>
+                <p class="text-xl text-gray-400 font-medium mb-4">{{ jugador['Equipo'] }} • {{ jugador['Edad'] }} años • <span class="text-green-500 font-bold">{{ jugador['Posición'] }}</span></p>
                 
                 <form action="/favorito/{{ jugador['Nombre'] }}" method="POST" class="inline-block">
                     <button type="submit" class="px-6 py-2 rounded-lg font-bold text-sm transition-all border 
@@ -62,229 +65,154 @@
             <div class="lg:col-span-1 flex flex-col gap-6">
                 
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
-                    <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Perfil del Jugador</h3>
-                    
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-gray-400">Pierna Mala</span>
-                        <span class="text-yellow-400 font-bold tracking-widest">
-                            {% for i in range((jugador.get('Pierna Mala', 3))|int) %}★{% endfor %}
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-gray-400">Filigranas</span>
-                        <span class="text-yellow-400 font-bold tracking-widest">
-                            {% for i in range((jugador.get('Filigranas', 3))|int) %}★{% endfor %}
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-gray-400">Rendimiento (A/D)</span>
-                        <span class="text-white font-medium">{{ jugador.get('Rendimiento', 'Medio/Medio') }}</span>
-                    </div>
-                    <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-800">
-                        <span class="text-gray-400 font-medium">Valor Mercado</span>
-                        <span class="text-green-400 font-bold text-lg">{{ "{:,.0f}".format(jugador.get('Valor Real (€)', 0)|int).replace(',', '.') }} €</span>
+                    <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2 text-center">ADN del Jugador</h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="radarChart"></canvas>
                     </div>
                 </div>
 
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
-                    <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Atributos Base</h3>
+                    <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Atributos Detallados</h3>
                     
-                    {% set stats = [
-                        ('RIT', 'Ritmo', jugador.get('Ritmo', '--')),
-                        ('TIR', 'Tiro', jugador.get('Tiro', '--')),
-                        ('PAS', 'Pase', jugador.get('Pase', '--')),
-                        ('REG', 'Regate', jugador.get('Regate', '--')),
-                        ('DEF', 'Defensa', jugador.get('Defensa', '--')),
-                        ('FIS', 'Físico', jugador.get('Físico', '--'))
-                    ] %}
+                    <div class="flex flex-col gap-3">
+                        {% if jugador['Posición'] == 'POR' %}
+                            {% set stats_list = [
+                                ('EST', 'Estirada', jugador.get('Estirada', 0), [('Salto', jugador.get('Salto_POR', 0))]),
+                                ('PAR', 'Parada', jugador.get('Parada', 0), [('Seguridad', jugador.get('Seguridad', 0))]),
+                                ('SAQ', 'Saque', jugador.get('Saque', 0), [('Pase Largo', jugador.get('Pase_Largo_POR', 0))]),
+                                ('REF', 'Reflejos', jugador.get('Reflejos', 0), [('Reacción', jugador.get('Reacción', 0))]),
+                                ('VEL', 'Velocidad', jugador.get('Velocidad_POR', 0), [('Aceleración', jugador.get('Aceleración_POR', 0))]),
+                                ('COL', 'Colocación', jugador.get('Colocación', 0), [('Visión', jugador.get('Visión_POR', 0))])
+                            ] %}
+                        {% else %}
+                            {% set stats_list = [
+                                ('RIT', 'Ritmo', jugador.get('Ritmo', 0), [('Aceleración', jugador.get('Aceleración', 0)), ('Vel. Sprint', jugador.get('Velocidad_Sprint', 0))]),
+                                ('TIR', 'Tiro', jugador.get('Tiro', 0), [('Finalización', jugador.get('Finalización', 0)), ('Potencia', jugador.get('Potencia_Tiro', 0)), ('Lejanos', jugador.get('Tiros_Lejanos', 0))]),
+                                ('PAS', 'Pase', jugador.get('Pase', 0), [('Pase Corto', jugador.get('Pase_Corto', 0)), ('Pase Largo', jugador.get('Pase_Largo', 0)), ('Visión', jugador.get('Visión', 0))]),
+                                ('REG', 'Regate', jugador.get('Regate', 0), [('Agilidad', jugador.get('Agilidad', 0)), ('Equilibrio', jugador.get('Equilibrio', 0)), ('Control', jugador.get('Control_Balón', 0))]),
+                                ('DEF', 'Defensa', jugador.get('Defensa', 0), [('Robos', jugador.get('Robos', 0)), ('Entradas', jugador.get('Entradas', 0)), ('Marcaje', jugador.get('Marcaje', 0))]),
+                                ('FIS', 'Físico', jugador.get('Físico', 0), [('Fuerza', jugador.get('Fuerza', 0)), ('Resistencia', jugador.get('Resistencia', 0)), ('Agresividad', jugador.get('Agresividad', 0))])
+                            ] %}
+                        {% endif %}
 
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-4">
-                        {% for etiqueta, nombre, valor in stats %}
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-400 font-bold text-sm">{{ etiqueta }}</span>
-                            <div class="flex items-center gap-2">
-                                <span class="font-black text-lg 
-                                    {% if valor != '--' %}
+                        {% for etiqueta, nombre, valor, sub_stats in stats_list %}
+                        <details class="group bg-gray-800/50 rounded-lg p-3 border border-gray-700/50 hover:border-gray-600 transition-colors">
+                            <summary class="flex justify-between items-center cursor-pointer font-bold text-gray-300 select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-500 w-8">{{ etiqueta }}</span>
+                                    <span class="font-black text-lg 
                                         {% if (valor|int) >= 80 %} text-green-500
                                         {% elif (valor|int) >= 70 %} text-yellow-500
-                                        {% else %} text-red-500 {% endif %}
-                                    {% else %} text-gray-600 {% endif %}">
-                                    {{ valor }}
+                                        {% else %} text-red-500 {% endif %}">
+                                        {{ valor }}
+                                    </span>
+                                    <span class="text-sm tracking-wide">{{ nombre }}</span>
+                                </div>
+                                <span class="transition group-open:rotate-180 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
                                 </span>
+                            </summary>
+                            <div class="mt-3 pt-3 text-sm text-gray-400 space-y-2 pl-12 border-t border-gray-700/50">
+                                {% for sub_nom, sub_val in sub_stats %}
+                                <div class="flex justify-between items-center">
+                                    <span>{{ sub_nom }}</span>
+                                    <span class="font-bold text-white">{{ sub_val }}</span>
+                                </div>
+                                {% endfor %}
                             </div>
-                        </div>
+                        </details>
                         {% endfor %}
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-2 relative">
-                
-                {% if tier == 'Aficionado' %}
-                <div class="absolute inset-0 z-20 backdrop-blur-md bg-black/60 rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-8 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-                    <i class="fas fa-lock text-5xl text-gray-600 mb-6 drop-shadow-lg"></i>
-                    <h2 class="text-3xl font-black uppercase tracking-widest mb-2 text-white">Centro de Datos Bloqueado</h2>
-                    <p class="text-gray-400 mb-8 max-w-md text-lg">La analítica de crecimiento, proyección salarial y gráficas predictivas son exclusivas para <span class="text-green-500 font-bold">Mánagers Pro</span>.</p>
-                    <a href="/checkout/profesional" class="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-105">
-                        <i class="fas fa-unlock mr-2"></i> Desbloquear con Modo Dios
-                    </a>
-                </div>
-                {% endif %}
+            <div class="lg:col-span-2 relative flex flex-col gap-6">
 
-                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[450px] flex flex-col {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
-                    
-                    <button onclick="moverCarrusel(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-green-500 text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition border border-gray-700 shadow-lg">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button onclick="moverCarrusel(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-green-500 text-white hover:text-black w-10 h-10 rounded-full flex items-center justify-center transition border border-gray-700 shadow-lg">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase mb-1">Pierna Mala</div>
+                        <div class="text-yellow-400 font-bold tracking-widest">{% for i in range((jugador.get('Pierna Mala', 3))|int) %}★{% endfor %}</div>
+                    </div>
+                    <div class="border-l border-r border-gray-800">
+                        <div class="text-xs text-gray-500 uppercase mb-1">Filigranas</div>
+                        <div class="text-yellow-400 font-bold tracking-widest">{% for i in range((jugador.get('Filigranas', 3))|int) %}★{% endfor %}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase mb-1">Rend. (A/D)</div>
+                        <div class="text-white font-medium text-sm">{{ jugador.get('Rendimiento', 'Med/Med') }}</div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[400px] flex flex-col flex-1 {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
+                    {% if tier == 'Aficionado' %}
+                    <div class="absolute inset-0 z-20 backdrop-blur-md bg-black/60 rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-8 text-center">
+                        <i class="fas fa-lock text-5xl text-gray-600 mb-6"></i>
+                        <h2 class="text-3xl font-black uppercase text-white mb-2">Bloqueado</h2>
+                        <p class="text-gray-400 mb-6">Mejora a Mánager Pro para ver las gráficas.</p>
+                        <a href="/checkout/profesional" class="bg-green-500 text-black px-6 py-3 rounded-xl font-black uppercase text-sm">Desbloquear Modo Dios</a>
+                    </div>
+                    {% endif %}
+
+                    <button onclick="moverCarrusel(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-black transition"><i class="fas fa-chevron-left"></i></button>
+                    <button onclick="moverCarrusel(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-black transition"><i class="fas fa-chevron-right"></i></button>
 
                     <div class="carousel-slide active w-full h-full px-12" id="slide-0">
-                        <div class="text-center mb-4">
-                            <h3 class="text-lg font-black text-green-500 uppercase tracking-widest">Proyección de Crecimiento (OVR)</h3>
-                            <p class="text-xs text-gray-400">Evolución estimada temporada a temporada</p>
-                        </div>
-                        <div class="relative h-72 w-full">
-                            <canvas id="chartCrecimiento"></canvas>
-                        </div>
+                        <h3 class="text-lg font-black text-green-500 text-center uppercase tracking-widest mb-4">Evolución de OVR</h3>
+                        <div class="relative h-64 w-full"><canvas id="chartCrecimiento"></canvas></div>
                     </div>
 
                     <div class="carousel-slide w-full h-full px-12" id="slide-1">
-                        <div class="text-center mb-4">
-                            <h3 class="text-lg font-black text-blue-500 uppercase tracking-widest">Proyección de Valor de Mercado</h3>
-                            <p class="text-xs text-gray-400">Estimación de revalorización en millones de €</p>
-                        </div>
-                        <div class="relative h-72 w-full">
-                            <canvas id="chartFinanciero"></canvas>
-                        </div>
+                        <h3 class="text-lg font-black text-blue-500 text-center uppercase tracking-widest mb-4">Revalorización (M€)</h3>
+                        <div class="relative h-64 w-full"><canvas id="chartFinanciero"></canvas></div>
                     </div>
 
-                    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-green-500 dot transition-all"></div>
-                        <div class="w-2 h-2 rounded-full bg-gray-600 dot transition-all"></div>
+                    <div class="absolute bottom-20 left-0 right-0 flex justify-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500 dot"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-600 dot"></div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4 mt-auto pt-6 border-t border-gray-800">
-                        <div class="text-center">
-                            <div class="text-xs text-gray-500 uppercase mb-1">ROI Proyectado</div>
-                            <div class="text-xl font-bold text-white">+{{ jugador.get('ROI (%)', 0) }}%</div>
-                        </div>
-                        <div class="text-center border-l border-r border-gray-800">
-                            <div class="text-xs text-gray-500 uppercase mb-1">Ganga Score</div>
-                            <div class="text-xl font-bold text-green-400">{{ jugador.get('Ganga Score', 0) }}/10</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-xs text-gray-500 uppercase mb-1">Margen Mejora</div>
-                            <div class="text-xl font-bold text-white">+{{ jugador.get('Margen de Crecimiento', 0) }} Pts</div>
-                        </div>
+                        <div class="text-center"><div class="text-xs text-gray-500 uppercase">ROI</div><div class="text-xl font-bold text-white">+{{ jugador.get('ROI (%)', 0) }}%</div></div>
+                        <div class="text-center border-l border-r border-gray-800"><div class="text-xs text-gray-500 uppercase">Ganga Score</div><div class="text-xl font-bold text-green-400">{{ jugador.get('Ganga Score', 0) }}/10</div></div>
+                        <div class="text-center"><div class="text-xs text-gray-500 uppercase">Mejora</div><div class="text-xl font-bold text-white">+{{ jugador.get('Margen de Crecimiento', 0) }}</div></div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
     <script>
-        // Lógica del Carrusel
-        let slideIndex = 0;
-        const slides = document.querySelectorAll('.carousel-slide');
-        const dots = document.querySelectorAll('.dot');
-
+        // Lógica Carrusel
+        let slideIndex = 0; const slides = document.querySelectorAll('.carousel-slide'); const dots = document.querySelectorAll('.dot');
         function moverCarrusel(n) {
-            slides[slideIndex].classList.remove('active');
-            dots[slideIndex].classList.remove('bg-green-500');
-            dots[slideIndex].classList.add('bg-gray-600');
-            
-            slideIndex += n;
-            
-            if (slideIndex >= slides.length) slideIndex = 0;
-            if (slideIndex < 0) slideIndex = slides.length - 1;
-            
-            slides[slideIndex].classList.add('active');
-            dots[slideIndex].classList.remove('bg-gray-600');
-            dots[slideIndex].classList.add('bg-green-500');
+            slides[slideIndex].classList.remove('active'); dots[slideIndex].classList.replace('bg-green-500', 'bg-gray-600');
+            slideIndex = (slideIndex + n + slides.length) % slides.length;
+            slides[slideIndex].classList.add('active'); dots[slideIndex].classList.replace('bg-gray-600', 'bg-green-500');
         }
 
-        // --- RENDERIZADO DE GRÁFICOS ---
+        // Datos Radar Estrella
+        const esPortero = "{{ jugador['Posición'] }}" === "POR";
+        const radarLabels = esPortero 
+            ? ['Estirada', 'Parada', 'Saque', 'Reflejos', 'Velocidad', 'Colocación'] 
+            : ['Ritmo', 'Tiro', 'Pase', 'Regate', 'Defensa', 'Físico'];
+        const radarData = esPortero
+            ? [{{ jugador.get('Estirada', 50)|int }}, {{ jugador.get('Parada', 50)|int }}, {{ jugador.get('Saque', 50)|int }}, {{ jugador.get('Reflejos', 50)|int }}, {{ jugador.get('Velocidad_POR', 50)|int }}, {{ jugador.get('Colocación', 50)|int }}]
+            : [{{ jugador.get('Ritmo', 50)|int }}, {{ jugador.get('Tiro', 50)|int }}, {{ jugador.get('Pase', 50)|int }}, {{ jugador.get('Regate', 50)|int }}, {{ jugador.get('Defensa', 50)|int }}, {{ jugador.get('Físico', 50)|int }}];
+
+        new Chart(document.getElementById('radarChart').getContext('2d'), {
+            type: 'radar',
+            data: { labels: radarLabels, datasets: [{ label: 'Atributos', data: radarData, backgroundColor: 'rgba(34, 197, 94, 0.4)', borderColor: '#22c55e', borderWidth: 2, pointBackgroundColor: '#22c55e' }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 99, ticks: { display: false }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, angleLines: { color: 'rgba(255, 255, 255, 0.1)' }, pointLabels: { color: '#9ca3af', font: { size: 11, weight: 'bold' } } } }, plugins: { legend: { display: false } } }
+        });
+
+        // Gráficos VIP
         {% if tier != 'Aficionado' %}
-        
-        // Datos para las gráficas protegidos con int para evitar fallos de renderizado JS
-        const mediaActual = {{ jugador['Media'] | int }};
-        const potencial = {{ jugador['Potencial'] | int }};
-        const edadActual = {{ jugador['Edad'] | int }};
-        const margen = potencial - mediaActual;
-        const paso = Math.max(1, Math.round(margen / 4));
-        
-        const labelsEdades = [
-            `Temp 1 (${edadActual}a)`, 
-            `Temp 2 (${edadActual+1}a)`, 
-            `Temp 3 (${edadActual+2}a)`, 
-            `Temp 4 (${edadActual+3}a)`, 
-            `Prime (${edadActual+4}a)`
-        ];
+        const media = {{ jugador['Media'] | int }}; const pot = {{ jugador['Potencial'] | int }}; const paso = Math.max(1, Math.round((pot - media) / 4));
+        const lbls = ['T1', 'T2', 'T3', 'T4', 'Prime'];
+        new Chart(document.getElementById('chartCrecimiento').getContext('2d'), { type: 'line', data: { labels: lbls, datasets: [{ label: 'OVR', data: [media, media+paso, media+(paso*2), media+(paso*3), pot], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.4 }] }, options: { plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#333'}, ticks:{color:'#888'} }, x:{ grid:{display:false}, ticks:{color:'#888'} } } } });
 
-        // 1. GRÁFICO DE CRECIMIENTO
-        const ctxCrecimiento = document.getElementById('chartCrecimiento').getContext('2d');
-        new Chart(ctxCrecimiento, {
-            type: 'line',
-            data: {
-                labels: labelsEdades,
-                datasets: [{
-                    label: 'OVR Esperado',
-                    data: [mediaActual, mediaActual+paso, mediaActual+(paso*2), mediaActual+(paso*3), potencial],
-                    borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#fff',
-                    pointRadius: 4
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { min: mediaActual - 2, max: potencial + 2, grid: { color: '#333' }, ticks: { color: '#888' } },
-                    x: { grid: { display: false }, ticks: { color: '#888' } }
-                }
-            }
-        });
-
-        // 2. GRÁFICO FINANCIERO
-        const valorBase = {{ jugador.get('Valor Real (€)', 0) | int }} / 1000000;
-        const roiMultiplicador = (100 + {{ jugador.get('ROI (%)', 0) | float }}) / 100;
-        const valorPotencial = valorBase * roiMultiplicador;
-        const pasoFinanciero = (valorPotencial - valorBase) / 4;
-
-        const ctxFinanciero = document.getElementById('chartFinanciero').getContext('2d');
-        new Chart(ctxFinanciero, {
-            type: 'bar',
-            data: {
-                labels: labelsEdades,
-                datasets: [{
-                    label: 'Valor de Mercado (M€)',
-                    data: [
-                        valorBase.toFixed(1), 
-                        (valorBase + pasoFinanciero).toFixed(1), 
-                        (valorBase + pasoFinanciero*2).toFixed(1), 
-                        (valorBase + pasoFinanciero*3).toFixed(1), 
-                        valorPotencial.toFixed(1)
-                    ],
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { color: '#333' }, ticks: { color: '#888', callback: function(value){return value+'M€';} } },
-                    x: { grid: { display: false }, ticks: { color: '#888' } }
-                }
-            }
-        });
+        const vBase = {{ jugador.get('Valor Real (€)', 0) | int }} / 1000000; const vPot = vBase * ((100 + {{ jugador.get('ROI (%)', 0) | float }}) / 100); const pFin = (vPot - vBase) / 4;
+        new Chart(document.getElementById('chartFinanciero').getContext('2d'), { type: 'bar', data: { labels: lbls, datasets: [{ label: 'M€', data: [vBase.toFixed(1), (vBase+pFin).toFixed(1), (vBase+pFin*2).toFixed(1), (vBase+pFin*3).toFixed(1), vPot.toFixed(1)], backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#333'}, ticks:{color:'#888'} }, x:{ grid:{display:false}, ticks:{color:'#888'} } } } });
         {% endif %}
     </script>
 </body>
