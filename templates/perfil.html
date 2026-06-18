@@ -10,7 +10,6 @@
     <style>
         .carousel-slide { display: none; transition: opacity 0.3s ease-in-out; }
         .carousel-slide.active { display: block; }
-        /* Animación para los acordeones de sub-atributos */
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
     </style>
@@ -26,10 +25,12 @@
 
     <div class="max-w-7xl mx-auto px-6 mt-8">
         
+        <!-- CABECERA -->
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8 mb-8 shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-green-500 opacity-10 blur-[100px] pointer-events-none"></div>
             
-            <img src="{{ jugador['Foto'] }}" alt="{{ jugador['Nombre'] }}" class="w-40 h-40 rounded-full border-4 border-gray-800 shadow-xl object-cover bg-gray-800">
+            <!-- EL TRUCO PARA SOFIFA: referrerpolicy="no-referrer" -->
+            <img src="{{ jugador['Foto'] }}" referrerpolicy="no-referrer" alt="{{ jugador['Nombre'] }}" class="w-40 h-40 rounded-full border-4 border-gray-800 shadow-xl object-cover bg-gray-800">
             
             <div class="flex-1 text-center md:text-left z-10">
                 <div class="flex items-center justify-center md:justify-start gap-4 mb-2">
@@ -62,8 +63,10 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
+            <!-- COLUMNA IZQUIERDA -->
             <div class="lg:col-span-1 flex flex-col gap-6">
                 
+                <!-- GRÁFICO RADAR ESTRELLA -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2 text-center">ADN del Jugador</h3>
                     <div class="relative h-64 w-full">
@@ -71,27 +74,28 @@
                     </div>
                 </div>
 
+                <!-- 6 STATS PRINCIPALES + TODOS LOS SUB-ATRIBUTOS -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">Atributos Detallados</h3>
                     
                     <div class="flex flex-col gap-3">
                         {% if jugador['Posición'] == 'POR' %}
                             {% set stats_list = [
-                                ('EST', 'Estirada', jugador.get('Estirada', 0), [('Salto', jugador.get('Salto_POR', 0))]),
-                                ('PAR', 'Parada', jugador.get('Parada', 0), [('Seguridad', jugador.get('Seguridad', 0))]),
-                                ('SAQ', 'Saque', jugador.get('Saque', 0), [('Pase Largo', jugador.get('Pase_Largo_POR', 0))]),
-                                ('REF', 'Reflejos', jugador.get('Reflejos', 0), [('Reacción', jugador.get('Reacción', 0))]),
-                                ('VEL', 'Velocidad', jugador.get('Velocidad_POR', 0), [('Aceleración', jugador.get('Aceleración_POR', 0))]),
-                                ('COL', 'Colocación', jugador.get('Colocación', 0), [('Visión', jugador.get('Visión_POR', 0))])
+                                ('EST', 'Estirada', jugador.get('Estirada', 0), [('Estirada', jugador.get('Estirada_Sub', 0))]),
+                                ('PAR', 'Parada', jugador.get('Parada', 0), [('Paradas', jugador.get('Parada_Sub', 0))]),
+                                ('SAQ', 'Saque', jugador.get('Saque', 0), [('Saque Largo', jugador.get('Saque_Sub', 0))]),
+                                ('REF', 'Reflejos', jugador.get('Reflejos', 0), [('Reflejos', jugador.get('Reflejos_Sub', 0)), ('Reacción', jugador.get('Reacción', 0))]),
+                                ('VEL', 'Velocidad', jugador.get('Velocidad_POR', 0), [('Aceleración', jugador.get('Aceleración_POR', 0)), ('Vel. Sprint', jugador.get('Vel_Sprint_POR', 0))]),
+                                ('COL', 'Colocación', jugador.get('Colocación', 0), [('Posicionamiento', jugador.get('Colocación_Sub', 0))])
                             ] %}
                         {% else %}
                             {% set stats_list = [
                                 ('RIT', 'Ritmo', jugador.get('Ritmo', 0), [('Aceleración', jugador.get('Aceleración', 0)), ('Vel. Sprint', jugador.get('Velocidad_Sprint', 0))]),
-                                ('TIR', 'Tiro', jugador.get('Tiro', 0), [('Finalización', jugador.get('Finalización', 0)), ('Potencia', jugador.get('Potencia_Tiro', 0)), ('Lejanos', jugador.get('Tiros_Lejanos', 0))]),
-                                ('PAS', 'Pase', jugador.get('Pase', 0), [('Pase Corto', jugador.get('Pase_Corto', 0)), ('Pase Largo', jugador.get('Pase_Largo', 0)), ('Visión', jugador.get('Visión', 0))]),
-                                ('REG', 'Regate', jugador.get('Regate', 0), [('Agilidad', jugador.get('Agilidad', 0)), ('Equilibrio', jugador.get('Equilibrio', 0)), ('Control', jugador.get('Control_Balón', 0))]),
-                                ('DEF', 'Defensa', jugador.get('Defensa', 0), [('Robos', jugador.get('Robos', 0)), ('Entradas', jugador.get('Entradas', 0)), ('Marcaje', jugador.get('Marcaje', 0))]),
-                                ('FIS', 'Físico', jugador.get('Físico', 0), [('Fuerza', jugador.get('Fuerza', 0)), ('Resistencia', jugador.get('Resistencia', 0)), ('Agresividad', jugador.get('Agresividad', 0))])
+                                ('TIR', 'Tiro', jugador.get('Tiro', 0), [('Posicionamiento', jugador.get('Posicionamiento', 0)), ('Finalización', jugador.get('Finalización', 0)), ('Potencia', jugador.get('Potencia_Tiro', 0)), ('Lejanos', jugador.get('Tiros_Lejanos', 0)), ('Voleas', jugador.get('Voleas', 0)), ('Penaltis', jugador.get('Penaltis', 0))]),
+                                ('PAS', 'Pase', jugador.get('Pase', 0), [('Visión', jugador.get('Visión', 0)), ('Centros', jugador.get('Centros', 0)), ('Faltas', jugador.get('Precisión_Falta', 0)), ('Pase Corto', jugador.get('Pase_Corto', 0)), ('Pase Largo', jugador.get('Pase_Largo', 0)), ('Efecto', jugador.get('Efecto', 0))]),
+                                ('REG', 'Regate', jugador.get('Regate', 0), [('Agilidad', jugador.get('Agilidad', 0)), ('Equilibrio', jugador.get('Equilibrio', 0)), ('Reacciones', jugador.get('Reacciones', 0)), ('Control', jugador.get('Control_Balón', 0)), ('Regates', jugador.get('Regates', 0)), ('Compostura', jugador.get('Compostura', 0))]),
+                                ('DEF', 'Defensa', jugador.get('Defensa', 0), [('Intercepciones', jugador.get('Intercepciones', 0)), ('Cabeza', jugador.get('Precisión_Cabeza', 0)), ('Marcaje', jugador.get('Marcaje', 0)), ('Robos', jugador.get('Robos', 0)), ('Entradas', jugador.get('Entradas', 0))]),
+                                ('FIS', 'Físico', jugador.get('Físico', 0), [('Salto', jugador.get('Salto', 0)), ('Resistencia', jugador.get('Resistencia', 0)), ('Fuerza', jugador.get('Fuerza', 0)), ('Agresividad', jugador.get('Agresividad', 0))])
                             ] %}
                         {% endif %}
 
@@ -116,7 +120,7 @@
                                 {% for sub_nom, sub_val in sub_stats %}
                                 <div class="flex justify-between items-center">
                                     <span>{{ sub_nom }}</span>
-                                    <span class="font-bold text-white">{{ sub_val }}</span>
+                                    <span class="font-bold {% if (sub_val|int) >= 80 %}text-green-400{% elif (sub_val|int) >= 70 %}text-yellow-400{% else %}text-white{% endif %}">{{ sub_val }}</span>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -126,30 +130,37 @@
                 </div>
             </div>
 
+            <!-- COLUMNA DERECHA: VIP Y EXTRAS -->
             <div class="lg:col-span-2 relative flex flex-col gap-6">
 
-                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl grid grid-cols-3 gap-4 text-center">
+                <!-- INFO SECUNDARIA -->
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl grid grid-cols-4 gap-4 text-center">
                     <div>
                         <div class="text-xs text-gray-500 uppercase mb-1">Pierna Mala</div>
                         <div class="text-yellow-400 font-bold tracking-widest">{% for i in range((jugador.get('Pierna Mala', 3))|int) %}★{% endfor %}</div>
                     </div>
-                    <div class="border-l border-r border-gray-800">
+                    <div class="border-l border-gray-800">
                         <div class="text-xs text-gray-500 uppercase mb-1">Filigranas</div>
                         <div class="text-yellow-400 font-bold tracking-widest">{% for i in range((jugador.get('Filigranas', 3))|int) %}★{% endfor %}</div>
                     </div>
-                    <div>
+                    <div class="border-l border-gray-800">
                         <div class="text-xs text-gray-500 uppercase mb-1">Rend. (A/D)</div>
                         <div class="text-white font-medium text-sm">{{ jugador.get('Rendimiento', 'Med/Med') }}</div>
                     </div>
+                    <div class="border-l border-gray-800">
+                        <div class="text-xs text-gray-500 uppercase mb-1">Valoración</div>
+                        <div class="text-green-400 font-bold text-sm">{{ "{:,.0f}".format(jugador.get('Valor Real (€)', 0)|int).replace(',', '.') }} €</div>
+                    </div>
                 </div>
 
+                <!-- CONTENEDOR CARRUSEL -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[400px] flex flex-col flex-1 {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
                     {% if tier == 'Aficionado' %}
                     <div class="absolute inset-0 z-20 backdrop-blur-md bg-black/60 rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-8 text-center">
                         <i class="fas fa-lock text-5xl text-gray-600 mb-6"></i>
                         <h2 class="text-3xl font-black uppercase text-white mb-2">Bloqueado</h2>
                         <p class="text-gray-400 mb-6">Mejora a Mánager Pro para ver las gráficas.</p>
-                        <a href="/checkout/profesional" class="bg-green-500 text-black px-6 py-3 rounded-xl font-black uppercase text-sm">Desbloquear Modo Dios</a>
+                        <a href="/checkout/profesional" class="bg-green-500 text-black px-6 py-3 rounded-xl font-black uppercase text-sm hover:scale-105 transition">Desbloquear Modo Dios</a>
                     </div>
                     {% endif %}
 
@@ -182,7 +193,7 @@
     </div>
 
     <script>
-        // Lógica Carrusel
+        // Carrusel
         let slideIndex = 0; const slides = document.querySelectorAll('.carousel-slide'); const dots = document.querySelectorAll('.dot');
         function moverCarrusel(n) {
             slides[slideIndex].classList.remove('active'); dots[slideIndex].classList.replace('bg-green-500', 'bg-gray-600');
@@ -190,7 +201,7 @@
             slides[slideIndex].classList.add('active'); dots[slideIndex].classList.replace('bg-gray-600', 'bg-green-500');
         }
 
-        // Datos Radar Estrella
+        // Radar Chart
         const esPortero = "{{ jugador['Posición'] }}" === "POR";
         const radarLabels = esPortero 
             ? ['Estirada', 'Parada', 'Saque', 'Reflejos', 'Velocidad', 'Colocación'] 
@@ -205,7 +216,6 @@
             options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 99, ticks: { display: false }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, angleLines: { color: 'rgba(255, 255, 255, 0.1)' }, pointLabels: { color: '#9ca3af', font: { size: 11, weight: 'bold' } } } }, plugins: { legend: { display: false } } }
         });
 
-        // Gráficos VIP
         {% if tier != 'Aficionado' %}
         const media = {{ jugador['Media'] | int }}; const pot = {{ jugador['Potencial'] | int }}; const paso = Math.max(1, Math.round((pot - media) / 4));
         const lbls = ['T1', 'T2', 'T3', 'T4', 'Prime'];
