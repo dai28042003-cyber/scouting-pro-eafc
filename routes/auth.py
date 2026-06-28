@@ -13,22 +13,11 @@ auth_bp = Blueprint('auth', __name__)
 
 # --- MOTOR DE CORREO PROFESIONAL (RESEND API) ---
 def enviar_codigo(destinatario, codigo):
+    # Configuración de Resend (Limpio y seguro)
     resend.api_key = os.environ.get('RESEND_API_KEY')
     
     if not resend.api_key:
         raise Exception("Falta la RESEND_API_KEY en las variables de entorno de Render.")
-
-    try:
-        # Usamos la API para disparar el correo por el puerto 443 seguro
-        r = resend.Emails.send({
-            "from": "Scouting PRO <onboarding@resend.dev>",
-            "to": destinatario,
-            "subject": "Código de Verificación - Scouting PRO",
-            "text": f"Bienvenido Mánager.\n\nTu código de acceso secreto para Scouting PRO es: {codigo}\n\nIntroduce este código en la web para activar tu cuenta de Director Deportivo."
-        })
-        return True
-    except Exception as e:
-        raise Exception(f"Fallo al conectar con la API de Resend. Detalles: {e}")
 
 # --- RUTAS ---
 @auth_bp.route('/registro', methods=['GET', 'POST'])
