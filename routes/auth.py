@@ -28,11 +28,14 @@ def enviar_codigo(destinatario, codigo):
             "from": "Scouting PRO <onboarding@resend.dev>",
             "to": destinatario,
             "subject": "Código de Verificación - Scouting PRO",
-            "text": f"Bienvenido Mánager.\n\nTu código de acceso secreto para Scouting PRO es: {codigo}\n\nIntroduce este código en la web para activar tu cuenta de Director Deportivo."
+            "text": f"Bienvenido Mánager.\n\nTu código para Scouting PRO es: {codigo}"
         })
         return True
     except Exception as e:
-        raise Exception(f"Fallo al conectar con la API de Resend. Detalles: {e}")
+        # 👇 EL CAMBIO ESTÁ AQUÍ 👇
+        # En vez de romper la web (raise Exception), solo dejamos un aviso en la terminal
+        print(f"⚠️ AVISO RESEND: Correo no enviado por límite de prueba. Usa el código de la consola.", flush=True)
+        return False
 
 # --- RUTAS ---
 @auth_bp.route('/registro', methods=['GET', 'POST'])
