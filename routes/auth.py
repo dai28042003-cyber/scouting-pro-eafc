@@ -181,3 +181,13 @@ def pago_exitoso():
     current_user.tier = tier_map.get(plan_comprado, 'Profesional')
     db.session.commit()
     return render_template('pago_exitoso.html', plan=current_user.tier)
+
+# 👇 LA RUTA SECRETA PARA EL MÁNAGER 👇
+@auth_bp.route('/bajar-nivel')
+@login_required
+def bajar_nivel():
+    # Este truco resetea tu cuenta a pobre para que puedas ver los botones de pago
+    current_user.tier = 'Aficionado'
+    db.session.commit()
+    flash("Nivel reseteado. ¡Ya eres Aficionado y puedes probar Stripe!")
+    return redirect(url_for('auth.vestuario'))
