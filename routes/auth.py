@@ -19,6 +19,21 @@ def enviar_codigo(destinatario, codigo):
     if not resend.api_key:
         raise Exception("Falta la RESEND_API_KEY en las variables de entorno de Render.")
 
+    # 👇 TRUCO DEL MÁNAGER: Chivato por consola para poder registrarte sin mirar el email 👇
+    print(f"\n🤫 TRUCO DE MÁNAGER - El código secreto para {destinatario} es: {codigo}\n", flush=True)
+
+    try:
+        # Usamos la API para disparar el correo real
+        r = resend.Emails.send({
+            "from": "Scouting PRO <onboarding@resend.dev>",
+            "to": destinatario,
+            "subject": "Código de Verificación - Scouting PRO",
+            "text": f"Bienvenido Mánager.\n\nTu código de acceso secreto para Scouting PRO es: {codigo}\n\nIntroduce este código en la web para activar tu cuenta de Director Deportivo."
+        })
+        return True
+    except Exception as e:
+        raise Exception(f"Fallo al conectar con la API de Resend. Detalles: {e}")
+
 # --- RUTAS ---
 @auth_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
