@@ -73,13 +73,15 @@
                 <p class="text-gray-400 font-sans mb-8 flex-1 z-10">Multiplica tus monedas. Herramientas de tradeo avanzadas, alertas de precio en vivo y soluciones de SBC automáticas.</p>
                 
                 <div class="flex flex-col z-10 w-full mt-auto">
-                    <a href="/fut/dashboard" class="w-full bg-gray-800 group-hover:bg-yellow-500 text-white group-hover:text-black text-center py-3 rounded-xl font-black uppercase tracking-widest transition-colors shadow-lg flex items-center justify-center gap-2">
-                        {% if tier == 'Clase Mundial' or tier == 'Trader Élite' %}
+                    {% if tier == 'Clase Mundial' or tier == 'Trader Élite' %}
+                        <a href="/fut/dashboard" class="w-full bg-gray-800 group-hover:bg-yellow-500 text-white group-hover:text-black text-center py-3 rounded-xl font-black uppercase tracking-widest transition-colors shadow-lg flex items-center justify-center gap-2">
                             Acceder al Mercado Central
-                        {% else %}
-                            🔒 Requiere Nivel Trader
-                        {% endif %}
-                    </a>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.checkout', plan='profesional') }}" class="w-full bg-gray-800 group-hover:bg-yellow-500 text-white group-hover:text-black text-center py-3 rounded-xl font-black uppercase tracking-widest transition-colors shadow-lg flex items-center justify-center gap-2">
+                            🔒 Subir Nivel para Desbloquear
+                        </a>
+                    {% endif %}
                 </div>
             </div>
 
