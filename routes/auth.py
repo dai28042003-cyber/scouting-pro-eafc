@@ -160,8 +160,15 @@ def checkout(plan):
         )
         return redirect(checkout_session.url)
     except Exception as e:
-        flash(f"Error pasarela: {e}")
-        return redirect(url_for('auth.vestuario'))
+        # Hacemos que el error sea visible a lo bruto
+        error_trace = traceback.format_exc()
+        return f"""
+        <div style='background:#111; color:#ff4444; padding:30px; font-family:monospace; min-height:100vh;'>
+            <h2>🚨 ERROR DE STRIPE 🚨</h2>
+            <p>El motor de pagos ha chocado contra un muro. Pásame este error:</p>
+            <pre style='background:#000; padding:20px; border:1px solid #ff4444;'>{e}\n\n{error_trace}</pre>
+        </div>
+        """
 
 @auth_bp.route('/pago-exitoso')
 @login_required
