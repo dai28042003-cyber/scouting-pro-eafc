@@ -6,10 +6,10 @@ db = SQLAlchemy()
 # 1. TABLA DE CLIENTES (MÁNAGERS)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
-    apellido1 = db.Column(db.String(50), nullable=False)
-    apellido2 = db.Column(db.String(50), nullable=True)
-    username = db.Column(db.String(30), unique=True, nullable=False)
+    nombre = db.Column(db.String(100), nullable=False)
+    apellido1 = db.Column(db.String(100), nullable=False)
+    apellido2 = db.Column(db.String(100), nullable=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     tier = db.Column(db.String(50), default='Aficionado')
@@ -22,20 +22,18 @@ class User(UserMixin, db.Model):
 # 2. TABLA DE JUGADORES (LA BASE DE DATOS MASIVA)
 class Jugador(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    posicion = db.Column(db.String(10), nullable=False)
-    equipo = db.Column(db.String(100), nullable=True)
-    nacionalidad = db.Column(db.String(100), nullable=True)
-    edad = db.Column(db.Integer, nullable=False)
-    media = db.Column(db.Integer, nullable=False)
-    potencial = db.Column(db.Integer, nullable=False)
-    valor = db.Column(db.Float, nullable=False) # En euros
-    foto = db.Column(db.String(200), nullable=True)
-    
-    # Campos exclusivos para los cálculos PRO
-    ganga_score = db.Column(db.Float, nullable=True)
-    roi = db.Column(db.Float, nullable=True)
-    margen_crecimiento = db.Column(db.Integer, nullable=True)
+    nombre = db.Column(db.String(150))          # Ampliado a 150
+    posicion = db.Column(db.String(50))         # Ampliado a 50 (¡Este era el culpable!)
+    equipo = db.Column(db.String(150))          # Ampliado a 150
+    nacionalidad = db.Column(db.String(100))    # Ampliado a 100
+    edad = db.Column(db.Integer)
+    media = db.Column(db.Integer)
+    potencial = db.Column(db.Integer)
+    valor = db.Column(db.Float)
+    foto = db.Column(db.String(300))            # Las URLs pueden ser muy largas
+    ganga_score = db.Column(db.Float)
+    roi = db.Column(db.Float)
+    margen_crecimiento = db.Column(db.Integer)
 
     # Relación: Un jugador puede estar en la libreta de muchos Mánagers
     seguidores = db.relationship('Favorito', backref='jugador_asociado', lazy=True, cascade="all, delete-orphan")
