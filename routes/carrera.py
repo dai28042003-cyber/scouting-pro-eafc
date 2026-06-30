@@ -129,3 +129,33 @@ def mis_promesas():
     jugadores_favs = [j for j in datos_reales if j['Nombre'] in nombres_guardados]
 
     return render_template('mis_promesas.html', jugadores=jugadores_favs, tier=tier_actual)
+
+# -------------------------------------------------------------------
+# NUEVA RUTA: COMPARADOR AVANZADO DE JUGADORES (MISIÓN GALÁCTICA)
+# -------------------------------------------------------------------
+@carrera_bp.route('/comparar')
+@login_required
+def comparar():
+    tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
+    
+    # Control de acceso VIP: Los aficionados se quedan fuera
+    if tier_actual == 'Aficionado':
+        flash("La herramienta de comparación avanzada es exclusiva para miembros PRO o Clase Mundial.")
+        return redirect(url_for('carrera.dashboard'))
+        
+    p1_nombre = request.args.get('p1')
+    p2_nombre = request.args.get('p2')
+    
+    jugador1 = None
+    jugador2 = None
+    
+    # Si el usuario ha seleccionado ambos objetivos, extraemos sus fichas de rendimiento
+    if p1_nombre and p2_nombre:
+        jugador1 = next((j for j in datos_reales if j['Nombre'] == p1_nombre), None)
+        jugador2 = next((j for j in datos_reales if j['Nombre'] == p2_nombre), None)
+        
+    return render_template('comparador.html', 
+                           jugadores=datos_reales, 
+                           j1=jugador1, 
+                           j2=jugador2, 
+                           tier=tier_actual)
