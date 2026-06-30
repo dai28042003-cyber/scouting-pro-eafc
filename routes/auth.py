@@ -132,50 +132,41 @@ def checkout(plan):
             payment_method_types=['card', 'bizum', 'link'],
             line_items=[{'price_data': {'currency': 'eur', 'product_data': {'name': nombre_plan}, 'unit_amount': precio_centimos}, 'quantity': 1}],
             mode='payment',
-            success_url=url_for('auth.pago_exitoso', _external=True),
+            # Pasamos el ID de la sesión en la URL de retorno para verificarlo al volver
+            success_url=url_for('auth.pago_exitoso', _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=url_for('home', _external=True),
             client_reference_id=str(current_user.id),
-            metadata={'plan_id': plan} # Pasamos el plan de forma segura en la metadata
+            metadata={'plan_id': plan}
         )
         return redirect(checkout_session.url)
     except Exception as e:
         error_trace = traceback.format_exc()
         return f"<div style='background:#111; color:#ff4444; padding:30px;'><h2>🚨 ERROR DE STRIPE 🚨</h2><pre>{e}\n\n{error_trace}</pre></div>"
 
-# LA PUERTA TRASERA CERRADA (Ya no regala niveles)
+# AUTO-VERIFICACIÓN AL VOLVER DE STRIPE (A prueba de balas)
 @auth_bp.route('/pago-exitoso')
 @login_required
 def pago_exitoso():
-    return render_template('pago_exitoso.html', plan=current_user.tier)
-
-# EL WEBHOOK (El vigilante de seguridad de Stripe)
-@auth_bp.route('/webhook', methods=['POST'])
-def webhook_stripe():
-    stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
-    endpoint_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
+    session_id = request.args.get('session_id')
     
-    payload = request.data
-    sig_header = request.headers.get('Stripe-Signature')
-
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-    except Exception as e:
-        return jsonify(error=str(e)), 400
-
-    # Solo si el pago es 100% real y exitoso
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        usuario_id = session.get('client_reference_id')
-        plan_comprado = session.get('metadata', {}).get('plan_id', 'profesional')
-
-        if usuario_id:
-            user = User.query.get(int(usuario_id))
-            if user:
+    if session_id:
+        try:
+            stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+            # Consultamos directamente a Stripe si esta sesión ha sido pagada
+            session = stripe.checkout.Session.retrieve(session_id)
+            
+            if session.payment_status == 'paid':
+                plan_comprado = session.get('metadata', {}).get('plan_id', 'profesional')
                 tier_map = {'aficionado': 'Aficionado', 'profesional': 'Profesional', 'clasemundial': 'Clase Mundial'}
-                user.tier = tier_map.get(plan_comprado, 'Profesional')
-                db.session.commit() # AQUÍ es donde se sube de nivel de forma segura
+                
+                # Actualizamos el nivel en la base de datos al instante
+                current_user.tier = tier_map.get(plan_comprado, 'Profesional')
+                db.session.commit()
+                print(f"¡ÉXITO INTEGRAL! Usuario ascendido a {current_user.tier}", flush=True)
+        except Exception as e:
+            print(f"⚠️ Error al auto-verificar sesión de Stripe: {e}", flush=True)
 
-    return jsonify(success=True), 200
+    return render_template('pago_exitoso.html', plan=current_user.tier)
 
 # RUTA DE ADMINISTRADOR
 @auth_bp.route('/bajar-nivel')
