@@ -14,7 +14,18 @@ def create_app():
     app = Flask(__name__)
 
     basedir = os.path.abspath(os.path.dirname(__file__))
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'usuarios.db')
+    
+    # --- CONEXIÓN INTELIGENTE A LA BASE DE DATOS ---
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        # SQLAlchemy exige que la URL empiece por postgresql:// en las versiones nuevas
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    else:
+        # Si estás probando en tu ordenador sin internet, usa el archivo local
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'usuarios.db')
+        
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'clave_super_secreta_proyecto_fc')
 
     db.init_app(app)
