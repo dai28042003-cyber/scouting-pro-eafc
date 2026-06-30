@@ -61,6 +61,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             
+            <!-- COLUMNA IZQUIERDA -->
             <div class="lg:col-span-1 flex flex-col gap-6">
                 
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
@@ -125,7 +126,7 @@
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA: VIP Y EXTRAS -->
+            <!-- COLUMNA DERECHA: VIP, EXTRAS E IA -->
             <div class="lg:col-span-2 relative flex flex-col gap-6">
 
                 <!-- INFO SECUNDARIA -->
@@ -148,7 +149,7 @@
                     </div>
                 </div>
 
-                <!-- CONTENEDOR CARRUSEL - CORRECCIÓN DE ALTURA -->
+                <!-- CONTENEDOR CARRUSEL VIP -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[500px] flex flex-col flex-1 {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
                     {% if tier == 'Aficionado' %}
                     <div class="absolute inset-0 z-20 backdrop-blur-md bg-black/60 rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-8 text-center">
@@ -207,6 +208,38 @@
                         <div class="text-center"><div class="text-xs text-gray-500 uppercase">Mejora</div><div class="text-xl font-bold text-white">+{{ jugador.get('Margen de Crecimiento', 0) }}</div></div>
                     </div>
                 </div>
+
+                <!-- 🔥 NUEVA SECCIÓN IA (MISIÓN B) -->
+                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-xl font-black uppercase tracking-tight flex items-center gap-2 text-blue-400">
+                                <i class="fas fa-robot"></i> Ojeador Jefe IA
+                            </h3>
+                            <p class="text-gray-400 font-sans mt-1 text-sm">Inteligencia Artificial conectada a los servidores de Gemini.</p>
+                        </div>
+                        <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest border border-blue-500/30">En Pruebas</span>
+                    </div>
+
+                    <button id="btn-ia" onclick="generarInforme('{{ jugador['Nombre'] }}')" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black uppercase tracking-widest py-3 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.01] flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-bolt"></i> Solicitar Informe Táctico
+                    </button>
+
+                    <div id="ia-loading" class="hidden flex-col items-center justify-center py-6 opacity-70">
+                        <i class="fas fa-circle-notch fa-spin text-3xl text-blue-500 mb-3"></i>
+                        <p class="text-blue-400 font-bold uppercase tracking-widest text-[10px] animate-pulse">Analizando estadísticas y rentabilidad...</p>
+                    </div>
+
+                    <div id="ia-resultado" class="hidden mt-4 bg-gray-950 border border-gray-800 rounded-xl p-5 relative">
+                        <div class="absolute -top-3 left-4 bg-gray-900 border border-gray-800 px-2 py-1 rounded text-[10px] text-gray-400 uppercase font-bold tracking-widest">
+                            Reporte Generado
+                        </div>
+                        <div id="ia-texto" class="text-gray-300 font-sans text-sm leading-relaxed space-y-3 mt-2">
+                            <!-- Aquí se inyecta el texto de Gemini -->
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -257,6 +290,43 @@
         const ganga = {{ jugador.get('Ganga Score', 0) | float }};
         new Chart(document.getElementById('chartGanga').getContext('2d'), { type: 'doughnut', data: { labels: ['Éxito', 'Riesgo'], datasets: [{ data: [ganga * 10, 100 - (ganga * 10)], backgroundColor: ['#14b8a6', '#ef4444'], borderWidth: 0, cutout: '75%' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: {color: '#9ca3af'} } } } });
         {% endif %}
+
+        // 🔥 FUNCIÓN PARA LLAMAR A LA INTELIGENCIA ARTIFICIAL
+        function generarInforme(nombreJugador) {
+            const btn = document.getElementById('btn-ia');
+            const loading = document.getElementById('ia-loading');
+            const resultadoCaja = document.getElementById('ia-resultado');
+            const textoBox = document.getElementById('ia-texto');
+
+            btn.classList.add('hidden');
+            resultadoCaja.classList.add('hidden');
+            loading.classList.remove('hidden');
+            loading.classList.add('flex');
+
+            fetch(`/api/informe-ia/${encodeURIComponent(nombreJugador)}`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.classList.add('hidden');
+                    loading.classList.remove('flex');
+                    resultadoCaja.classList.remove('hidden');
+                    
+                    if (data.error) {
+                        textoBox.innerHTML = `<span class="text-red-500 font-bold">${data.error}</span>`;
+                        if(!data.error.includes("Mejora tu licencia")) {
+                             btn.classList.remove('hidden');
+                        }
+                    } else {
+                        textoBox.innerHTML = data.informe;
+                    }
+                })
+                .catch(error => {
+                    loading.classList.add('hidden');
+                    loading.classList.remove('flex');
+                    resultadoCaja.classList.remove('hidden');
+                    textoBox.innerHTML = `<span class="text-red-500 font-bold">Error de conexión con los servidores satélite.</span>`;
+                    btn.classList.remove('hidden');
+                });
+        }
     </script>
 </body>
 </html>

@@ -8,4 +8,4 @@ stripe
 gunicorn
 resend==0.8.0
 psycopg2-binary
-
+google-generativeai
