@@ -75,7 +75,7 @@ def perfil_jugador(nombre):
             <h2 style='color:white; margin-bottom:20px; font-family:sans-serif;'>🚨 Autopsia del Error 500 🚨</h2>
             <p>El servidor se ha estrellado al intentar cargar a <b>{nombre}</b>. Aquí tienes el motivo exacto:</p>
             <pre style='background:#000; padding:20px; overflow-x:auto; border:1px solid #ff4444;'>{error_trace}</pre>
-            <p style='color:white; margin-top:20px;'>Copia todo este bloque de texto negro y pásamelo.</p>
+            <p style='color:white; margin-top:20px;'>Copia todo este block de texto negro y pásamelo.</p>
         </div>
         """
 
@@ -129,22 +129,3 @@ def mis_promesas():
     jugadores_favs = [j for j in datos_reales if j['Nombre'] in nombres_guardados]
 
     return render_template('mis_promesas.html', jugadores=jugadores_favs, tier=tier_actual)
-
-@carrera_bp.route('/godmode/<nivel>')
-@login_required
-def godmode(nivel):
-    niveles_validos = {
-        'aficionado': 'Aficionado', 
-        'profesional': 'Profesional', 
-        'clasemundial': 'Clase Mundial'
-    }
-    nivel_formateado = niveles_validos.get(nivel.lower())
-    
-    if nivel_formateado:
-        if hasattr(current_user, 'carrera_tier'):
-            current_user.carrera_tier = nivel_formateado
-        current_user.tier = nivel_formateado
-        db.session.commit()
-        flash(f'Modo Dios activado: Ahora eres {nivel_formateado}')
-    
-    return redirect(url_for('carrera.dashboard'))
