@@ -32,12 +32,15 @@
                     <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-xs font-bold uppercase">{{ tier }}</span>
                 {% endif %}
 
-                <!-- 🔥 NUEVO BOTÓN DEL COMPARADOR GALÁCTICO (SOLO PARA VIPs) -->
                 {% if tier != 'Aficionado' %}
                 <a href="/comparar" class="text-green-400 hover:text-green-300 font-black transition text-sm uppercase tracking-wider border border-green-500/30 px-3 py-1 rounded-xl bg-green-500/10 hidden sm:inline-block">
                     📊 Comparador
                 </a>
                 {% endif %}
+                
+                <a href="/mi-perfil" class="text-gray-400 hover:text-white font-bold transition text-sm uppercase tracking-wider hidden sm:inline-block">
+                    👤 Mi Despacho
+                </a>
                 
                 <a href="/logout" class="text-gray-500 hover:text-red-400 font-bold transition text-sm">Salir</a>
             </div>
@@ -106,7 +109,6 @@
                 
                 <div class="absolute top-4 left-4 flex flex-col items-center">
                     <span class="font-black text-2xl leading-none {% if jugador['Media'] >= 80 %}text-yellow-500{% else %}text-white{% endif %}">{{ jugador['Media'] }}</span>
-                    <!-- AQUI ESTA LA CORRECCIÓN -->
                     <span class="text-[10px] font-bold text-gray-400 uppercase mt-1 truncate max-w-[50px] text-center">{{ jugador.get('Posición', 'POS') }}</span>
                 </div>
 

@@ -159,3 +159,18 @@ def comparar():
                            j1=jugador1, 
                            j2=jugador2, 
                            tier=tier_actual)
+
+# -------------------------------------------------------------------
+# NUEVA RUTA: PERFIL DEL DIRECTOR DEPORTIVO (MISIÓN IDENTIDAD)
+# -------------------------------------------------------------------
+@carrera_bp.route('/mi-perfil')
+@login_required
+def mi_perfil():
+    tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
+    
+    # Contamos cuántos jugadores tiene en su libreta
+    total_favoritos = Favorito.query.filter_by(user_id=current_user.id).count()
+    
+    return render_template('mi_perfil.html', 
+                           tier=tier_actual, 
+                           total_favoritos=total_favoritos)
