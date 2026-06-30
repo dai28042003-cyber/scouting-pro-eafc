@@ -50,8 +50,7 @@ def create_app():
     # -------------------------------------------------------------------
 
     with app.app_context():
-        # 👇 PARCHE POSTGRESQL: Forzamos el borrado para aplicar los nuevos String(50) de models.py 👇
-        db.drop_all()
+        
         
         db.create_all()
         
