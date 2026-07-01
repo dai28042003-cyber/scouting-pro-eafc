@@ -61,7 +61,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             
-            <!-- COLUMNA IZQUIERDA -->
             <div class="lg:col-span-1 flex flex-col gap-6">
                 
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
@@ -125,7 +124,6 @@
                     </div>
                 </div>
 
-                <!-- 🔥 TARJETA: PLAN DE DESARROLLO -->
                 {% if plan %}
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-xs text-gray-500 uppercase font-black tracking-widest mb-4 flex items-center gap-2">
@@ -147,7 +145,7 @@
                         <div class="pt-1">
                             <span class="block text-gray-400 font-bold text-sm mb-2">Cronograma hacia +1 OVR</span>
                             
-                            {% if plan.semanas == "Máx. Potencial Alcanzado" %}
+                            {% if "Máx. Potencial" in plan.semanas or "Adaptación" in plan.semanas %}
                                 <div class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 px-3 py-2 rounded-lg text-center font-black text-sm uppercase">
                                     {{ plan.semanas }}
                                 </div>
@@ -161,16 +159,31 @@
                                 </div>
                             {% endif %}
                         </div>
+
+                        <div class="mt-4 pt-4 border-t border-gray-800">
+                            <label class="block text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2">Simular reconversión de posición:</label>
+                            <select onchange="window.location.href='?simular_pos=' + this.value" class="w-full bg-gray-950 border border-gray-700 text-white rounded-lg px-3 py-2 text-sm font-bold focus:outline-none focus:border-green-500 cursor-pointer">
+                                <option value="{{ plan.pos_original }}" {% if plan.pos_simulada == plan.pos_original %}selected{% endif %}>Predeterminado ({{ plan.pos_original }})</option>
+                                <option value="POR" {% if plan.pos_simulada == 'POR' %}selected{% endif %}>Portero (POR)</option>
+                                <option value="DFC" {% if plan.pos_simulada == 'DFC' %}selected{% endif %}>Defensa Central (DFC)</option>
+                                <option value="LD" {% if plan.pos_simulada == 'LD' %}selected{% endif %}>Lateral Derecho (LD)</option>
+                                <option value="LI" {% if plan.pos_simulada == 'LI' %}selected{% endif %}>Lateral Izquierdo (LI)</option>
+                                <option value="MCD" {% if plan.pos_simulada == 'MCD' %}selected{% endif %}>Pivote (MCD)</option>
+                                <option value="MC" {% if plan.pos_simulada == 'MC' %}selected{% endif %}>Mediocentro (MC)</option>
+                                <option value="MCO" {% if plan.pos_simulada == 'MCO' %}selected{% endif %}>Mediapunta (MCO)</option>
+                                <option value="ED" {% if plan.pos_simulada == 'ED' %}selected{% endif %}>Extremo Derecho (ED)</option>
+                                <option value="EI" {% if plan.pos_simulada == 'EI' %}selected{% endif %}>Extremo Izquierdo (EI)</option>
+                                <option value="DC" {% if plan.pos_simulada == 'DC' %}selected{% endif %}>Delantero Centro (DC)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 {% endif %}
 
             </div>
 
-            <!-- COLUMNA DERECHA: VIP, EXTRAS E IA -->
             <div class="lg:col-span-2 relative flex flex-col gap-6">
 
-                <!-- INFO SECUNDARIA -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl grid grid-cols-4 gap-4 text-center">
                     <div>
                         <div class="text-xs text-gray-500 uppercase mb-1">Pierna Mala</div>
@@ -190,7 +203,6 @@
                     </div>
                 </div>
 
-                <!-- CONTENEDOR CARRUSEL VIP -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl relative min-h-[500px] flex flex-col flex-1 {% if tier == 'Aficionado' %}opacity-20 pointer-events-none{% endif %}">
                     {% if tier == 'Aficionado' %}
                     <div class="absolute inset-0 z-20 backdrop-blur-md bg-black/60 rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-8 text-center">
@@ -204,31 +216,26 @@
                     <button onclick="moverCarrusel(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-black transition"><i class="fas fa-chevron-left"></i></button>
                     <button onclick="moverCarrusel(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-black transition"><i class="fas fa-chevron-right"></i></button>
 
-                    <!-- GRÁFICO 1: OVR -->
                     <div class="carousel-slide active w-full h-full flex-1 px-12" id="slide-0">
                         <h3 class="text-lg font-black text-green-500 text-center uppercase tracking-widest mb-4">Evolución de OVR</h3>
                         <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartCrecimiento"></canvas></div>
                     </div>
 
-                    <!-- GRÁFICO 2: FINANCIERO -->
                     <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-1">
                         <h3 class="text-lg font-black text-blue-500 text-center uppercase tracking-widest mb-4">Revalorización (M€)</h3>
                         <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartFinanciero"></canvas></div>
                     </div>
                     
-                    <!-- GRÁFICO 3: POLAR -->
                     <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-2">
                         <h3 class="text-lg font-black text-purple-500 text-center uppercase tracking-widest mb-4">Distribución de Atributos</h3>
                         <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartPolar"></canvas></div>
                     </div>
 
-                    <!-- GRÁFICO 4: COMPARATIVA BARRAS -->
                     <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-3">
                         <h3 class="text-lg font-black text-yellow-500 text-center uppercase tracking-widest mb-4">Perfil vs Media de Liga</h3>
                         <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartComparativa"></canvas></div>
                     </div>
 
-                    <!-- GRÁFICO 5: DOUGHNUT ÉXITO -->
                     <div class="carousel-slide w-full h-full flex-1 px-12" id="slide-4">
                         <h3 class="text-lg font-black text-teal-500 text-center uppercase tracking-widest mb-4">Probabilidad de Éxito Comercial</h3>
                         <div class="relative w-full flex-1 min-h-[300px]"><canvas id="chartGanga"></canvas></div>
@@ -250,7 +257,6 @@
                     </div>
                 </div>
 
-                <!-- 🔥 SECCIÓN IA (MISIÓN B) -->
                 <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col relative overflow-hidden">
                     <div class="flex justify-between items-start mb-6">
                         <div>
@@ -276,8 +282,7 @@
                             Reporte Generado
                         </div>
                         <div id="ia-texto" class="text-gray-300 font-sans text-sm leading-relaxed space-y-3 mt-2">
-                            <!-- Aquí se inyecta el texto de Gemini -->
-                        </div>
+                            </div>
                     </div>
                 </div>
 

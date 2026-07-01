@@ -1,6 +1,8 @@
 import os
+import io
+import csv
 import google.generativeai as genai
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, Response
 from flask_login import login_required, current_user
 from models import db, Favorito, Jugador
 from datos import jugadores as datos_reales
@@ -52,12 +54,12 @@ def perfil_jugador(nombre):
         if jugador_db:
             es_favorito = Favorito.query.filter_by(user_id=current_user.id, jugador_id=jugador_db.id).first() is not None
 
-        # 🔥 NUEVO ALGORITMO: PLAN DE DESARROLLO Y ENTRENAMIENTO 🔥
-        pos = jugador_encontrado.get('Posición', 'POS')
+        # 🔥 MISIÓN 3: SIMULADOR DE CAMBIO DE POSICIÓN
+        pos_original = jugador_encontrado.get('Posición', 'POS').split(',')[0].strip()
+        pos_simulada = request.args.get('simular_pos', pos_original)
         edad = int(jugador_encontrado.get('Edad', 20))
         margen = int(jugador_encontrado.get('Margen de Crecimiento', 0))
 
-        # 1. Rol Táctico Recomendado
         roles_meta = {
             'POR': ['Portero Gato', 'Reflejos y Estirada'],
             'DFC': ['Defensa de Toque', 'Pase y Regate defensivo'],
@@ -68,48 +70,51 @@ def perfil_jugador(nombre):
             'MCO': ['Atacante en la Sombra', 'Tiro y Aceleración'],
             'ED': ['Extremo Invertido', 'Tiro y Regate'],
             'EI': ['Extremo Invertido', 'Tiro y Regate'],
-            'DC': ['Cazagoles', 'Finalización y Posicionamiento']
+            'DC': ['Cazagoles', 'Finalización y Posicionamiento'],
+            'CAD': ['Carrilero Físico', 'Resistencia y Centros'],
+            'CAI': ['Carrilero Físico', 'Resistencia y Centros']
         }
         
-        rol_data = roles_meta.get(pos, ['Equilibrado', 'Todas las estadísticas'])
+        rol_data = roles_meta.get(pos_simulada, ['Equilibrado', 'Todas las estadísticas'])
         
-        # 2. Intensidad y Tiempo para subir +1 OVR
+        # Penalización matemática si le cambias de posición
+        penalizacion_semanas = 4 if pos_simulada != pos_original else 0
+            
         if edad <= 22 and margen >= 5:
             intensidad = "Alta Intensidad (Acelerado)"
             color_int = "text-red-500"
-            semanas = max(2, 6 - (margen // 3)) # Sube rapidísimo (2-4 semanas)
+            semanas_calc = max(2, 6 - (margen // 3)) + penalizacion_semanas
+            semanas = str(semanas_calc)
         elif margen > 0:
             intensidad = "Desarrollo Normal"
             color_int = "text-green-500"
-            semanas = 5 + (edad - 20) // 2 # Sube a ritmo estándar (5-8 semanas)
+            semanas_calc = 5 + (edad - 20) // 2 + penalizacion_semanas
+            semanas = str(semanas_calc)
         else:
             intensidad = "Plan de Conservación"
             color_int = "text-yellow-500"
-            semanas = "Máx. Potencial Alcanzado"
+            semanas = "Máx. Potencial" if pos_simulada == pos_original else f"{penalizacion_semanas} (Adaptación)"
 
         plan_entrenamiento = {
             "rol": rol_data[0],
             "enfoque": rol_data[1],
             "intensidad": intensidad,
             "color_int": color_int,
-            "semanas": semanas
+            "semanas": semanas,
+            "pos_original": pos_original,
+            "pos_simulada": pos_simulada
         }
                 
         return render_template('perfil.html', 
                                jugador=jugador_encontrado, 
                                tier=tier_actual, 
                                es_favorito=es_favorito,
-                               plan=plan_entrenamiento) # Pasamos el plan al HTML
+                               plan=plan_entrenamiento)
         
     except Exception as e:
         import traceback
         error_trace = traceback.format_exc()
-        return f"""
-        <div style='background:#111; color:#ff4444; padding:30px; font-family:monospace; font-size:16px; line-height:1.5; min-height:100vh;'>
-            <h2 style='color:white; margin-bottom:20px; font-family:sans-serif;'>🚨 Autopsia del Error 500 🚨</h2>
-            <pre style='background:#000; padding:20px; overflow-x:auto; border:1px solid #ff4444;'>{error_trace}</pre>
-        </div>
-        """
+        return f"<h2>Error 500</h2><pre>{error_trace}</pre>"
 
 @carrera_bp.route('/favorito/<nombre>', methods=['POST'])
 @login_required
@@ -118,22 +123,15 @@ def toggle_favorito(nombre):
     jugador_db = Jugador.query.filter_by(nombre=nombre).first()
     
     if not jugador_db:
-        flash("Error: El jugador no existe en la base de datos principal.")
         return redirect(request.referrer)
 
     fav = Favorito.query.filter_by(user_id=current_user.id, jugador_id=jugador_db.id).first()
     
     if fav:
         db.session.delete(fav)
-        flash(f"Has quitado a {nombre} de tu libreta.")
     else:
-        total_favoritos = Favorito.query.filter_by(user_id=current_user.id).count()
-        if tier_actual == 'Aficionado' and total_favoritos >= 3:
-            flash("Límite alcanzado. Mejora a Mánager Pro para seguir jugadores ilimitados.")
-        else:
-            nuevo_fav = Favorito(user_id=current_user.id, jugador_id=jugador_db.id)
-            db.session.add(nuevo_fav)
-            flash(f"Has guardado a {nombre} en tu libreta.")
+        nuevo_fav = Favorito(user_id=current_user.id, jugador_id=jugador_db.id)
+        db.session.add(nuevo_fav)
             
     db.session.commit()
     return redirect(request.referrer)
@@ -151,14 +149,45 @@ def mis_promesas():
 
     return render_template('mis_promesas.html', jugadores=jugadores_favs, tier=tier_actual)
 
+# 🔥 MISIÓN 1: EXPORTACIÓN DE BIG DATA (VIP)
+@carrera_bp.route('/api/exportar-libreta')
+@login_required
+def exportar_libreta():
+    tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
+    if tier_actual != 'Clase Mundial':
+        flash("La exportación de datos es exclusiva para el nivel Clase Mundial.")
+        return redirect(url_for('carrera.mis_promesas'))
+        
+    favoritos_db = Favorito.query.filter_by(user_id=current_user.id).all()
+    ids_guardados = [fav.jugador_id for fav in favoritos_db]
+    jugadores_db = Jugador.query.filter(Jugador.id.in_(ids_guardados)).all()
+    nombres_guardados = [j.nombre for j in jugadores_db]
+    mis_jugadores = [j for j in datos_reales if j['Nombre'] in nombres_guardados]
+
+    # Crear el archivo CSV en la memoria
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=';') # Usamos punto y coma para el Excel europeo
+    writer.writerow(['Nombre', 'Edad', 'Posicion', 'OVR Actual', 'Potencial', 'Valor Mercado', 'Ganga Score'])
+    
+    for j in mis_jugadores:
+        writer.writerow([
+            j['Nombre'], 
+            j['Edad'], 
+            j.get('Posición', ''), 
+            j['Media'], 
+            j['Potencial'], 
+            j.get('Valor Real (€)', 0), 
+            j.get('Ganga Score', 0)
+        ])
+        
+    return Response(output.getvalue(), 
+                    mimetype="text/csv", 
+                    headers={"Content-Disposition": "attachment;filename=Mis_Promesas_ScoutingPRO.csv"})
+
 @carrera_bp.route('/comparar')
 @login_required
 def comparar():
     tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
-    if tier_actual == 'Aficionado':
-        flash("La herramienta de comparación avanzada es exclusiva para miembros PRO o Clase Mundial.")
-        return redirect(url_for('carrera.dashboard'))
-        
     p1_nombre = request.args.get('p1')
     p2_nombre = request.args.get('p2')
     jugador1 = next((j for j in datos_reales if j['Nombre'] == p1_nombre), None) if p1_nombre else None
@@ -177,65 +206,29 @@ def mi_perfil():
 @login_required
 def informe_ia(nombre):
     tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
-    
     if tier_actual not in ['Profesional', 'Clase Mundial']:
-        return jsonify({"error": "🔒 Acceso Denegado. Mejora tu licencia a VIP para contactar con el Ojeador IA."}), 403
+        return jsonify({"error": "🔒 Acceso Denegado. Mejora tu licencia a VIP."}), 403
         
     jugador = next((j for j in datos_reales if j['Nombre'] == nombre), None)
-    if not jugador:
-        return jsonify({"error": "Jugador no encontrado."}), 404
-
     api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        return jsonify({"error": "Error del servidor: API Key no configurada."}), 500
-        
     genai.configure(api_key=api_key)
     
-    prompt = f"""
-    Actúa como el Ojeador Jefe de un club de fútbol de élite. Redacta un informe de ojeo directo, clínico y profesional sobre esta promesa (máximo 120 palabras). 
-    
-    Datos a evaluar:
-    - Nombre: {jugador['Nombre']} ({jugador.get('Posición', 'POS')})
-    - Edad: {jugador['Edad']} años
-    - Calidad: {jugador['Media']} OVR -> Potencial: {jugador['Potencial']}
-    - Precio estimado: {jugador.get('Valor Real (€)', 0)}€
-    - Ganga Score (0-10): {jugador.get('Ganga Score', 0)} (indica si está barato para su potencial).
-    
-    Escribe 3 párrafos cortos: 
-    1. Perfil técnico y potencial de crecimiento.
-    2. Evaluación económica (¿Es un precio justo?).
-    3. Veredicto final: ¿Recomiendas ficharlo?
-    
-    No uses Markdown tradicional como asteriscos. Usa únicamente etiquetas HTML <b> para negritas y <br> para separar párrafos.
-    """
-    
+    prompt = f"Actúa como Ojeador. Haz un reporte táctico breve de {jugador['Nombre']}, {jugador['Edad']} años, {jugador['Media']} OVR, Potencial {jugador['Potencial']}. Usa HTML <b> y <br>."
     try:
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
-        
-        texto_limpio = response.text.replace('```html', '').replace('```', '').strip()
-        texto_limpio = texto_limpio.replace('\n', '<br>')
-        
-        return jsonify({"informe": texto_limpio})
+        return jsonify({"informe": response.text.replace('```html', '').replace('```', '').strip()})
     except Exception as e:
-        return jsonify({"error": "El ojeador está ocupado analizando a otros talentos. Inténtalo de nuevo en unos segundos."}), 500
+        return jsonify({"error": "El ojeador está ocupado."}), 500
 
-# -------------------------------------------------------------------
-# RUTA DE LA PIZARRA TÁCTICA
-# -------------------------------------------------------------------
 @carrera_bp.route('/pizarra')
 @login_required
 def pizarra_tactica():
     tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
-    
     favoritos_db = Favorito.query.filter_by(user_id=current_user.id).all()
     ids_guardados = [fav.jugador_id for fav in favoritos_db]
-    
     jugadores_db = Jugador.query.filter(Jugador.id.in_(ids_guardados)).all()
     nombres_guardados = [j.nombre for j in jugadores_db]
-    
     mis_jugadores = [j for j in datos_reales if j['Nombre'] in nombres_guardados]
 
-    return render_template('pizarra.html', 
-                           tier=tier_actual, 
-                           jugadores=mis_jugadores)
+    return render_template('pizarra.html', tier=tier_actual, jugadores=mis_jugadores)

@@ -33,6 +33,12 @@
                     <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-xs font-bold uppercase">{{ tier }}</span>
                 {% endif %}
 
+                {% if tier == 'Clase Mundial' %}
+                <a href="/api/exportar-libreta" class="text-yellow-500 hover:text-yellow-400 font-bold transition text-sm uppercase tracking-wider hidden sm:inline-block border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 rounded-full">
+                    <i class="fas fa-file-excel mr-1"></i> Excel
+                </a>
+                {% endif %}
+
                 {% if tier != 'Aficionado' %}
                 <a href="/comparar" class="text-gray-400 hover:text-green-300 font-bold transition text-sm uppercase tracking-wider hidden sm:inline-block">
                     <i class="fas fa-chart-pie text-green-500 mr-1"></i> Comparador
@@ -192,13 +198,13 @@
 
                 playerCards.forEach(card => {
                     const cardName = card.dataset.nombre;
-                    const cardPos = card.dataset.posicion.toLowerCase(); // Pasamos a minúsculas
+                    const cardPos = card.dataset.posicion.toLowerCase(); 
                     const cardEdad = parseInt(card.dataset.edad);
                     const cardPot = parseInt(card.dataset.potencial);
 
                     const matchName = cardName.includes(search);
                     
-                    // 🌟 CORRECCIÓN CRÍTICA: Ahora evalúa si la posición buscada está incluida en el string multi-posición
+                    // 🌟 Corrección Multi-posición
                     const matchPos = pos === 'ALL' || cardPos.includes(pos.toLowerCase());
                     
                     const matchEdad = cardEdad <= maxEdad;

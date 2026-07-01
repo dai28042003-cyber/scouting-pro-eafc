@@ -16,34 +16,15 @@
             position: relative;
             border: 4px solid rgba(255,255,255,0.2);
         }
-        .pitch-lines {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0;
-        }
-        .center-circle {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 140px; height: 140px; border: 2px solid rgba(255,255,255,0.2); border-radius: 50%;
-        }
-        .center-line {
-            position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.2);
-        }
-        .penalty-box-top {
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 240px; height: 110px; border: 2px solid rgba(255,255,255,0.2); border-top: none;
-        }
-        .penalty-box-bottom {
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 240px; height: 110px; border: 2px solid rgba(255,255,255,0.2); border-bottom: none;
-        }
-        .tactical-slot {
-            position: absolute;
-            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-            transform: translate(-50%, -50%);
-            z-index: 10;
-        }
+        .pitch-lines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; }
+        .center-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; }
+        .center-line { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.2); }
+        .penalty-box-top { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 240px; height: 110px; border: 2px solid rgba(255,255,255,0.2); border-top: none; }
+        .penalty-box-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 240px; height: 110px; border: 2px solid rgba(255,255,255,0.2); border-bottom: none; }
+        .tactical-slot { position: absolute; transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); transform: translate(-50%, -50%); z-index: 10; }
     </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen flex flex-col">
-
     <nav class="bg-gray-900 border-b border-gray-800 p-4 shadow-xl z-50 relative">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/dashboard" class="hover:opacity-80 transition-opacity flex items-center gap-2">
@@ -51,39 +32,42 @@
                 <h1 class="text-2xl font-black tracking-tighter">SCOUTING<span class="text-green-500">PRO</span></h1>
             </a>
             <div class="bg-gray-800 text-gray-300 px-4 py-1.5 rounded-lg font-bold text-sm border border-gray-700">
-                <i class="fas fa-users mr-2"></i> {{ jugadores|length }} Promesas Disponibles
+                <i class="fas fa-users mr-2"></i> {{ jugadores|length }} Promesas
             </div>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-4 flex-1 w-full mt-4 mb-10">
-        <div class="text-center mb-6">
-            <h2 class="text-4xl font-black uppercase tracking-wide flex justify-center items-center gap-3">
-                <i class="fas fa-layer-group text-green-400"></i> Ajuste Táctico Real
-            </h2>
-            <p class="text-gray-400 mt-1 font-sans text-sm">Cambia la formación oficial de tu franquicia para redistribuir el potencial.</p>
-        </div>
-
-        <div class="flex justify-center mb-6 relative z-50">
-            <div class="bg-gray-900 border border-gray-800 p-2 rounded-2xl flex items-center gap-3 shadow-2xl">
-                <label class="text-xs text-gray-400 uppercase font-black tracking-widest pl-2"><i class="fas fa-sliders text-green-500 mr-1"></i> Disposición:</label>
-                <select id="selector-formacion" onchange="renderizarCampo(this.value)" class="bg-gray-950 border border-gray-700 text-white rounded-xl px-4 py-2 font-black focus:outline-none focus:border-green-500 cursor-pointer text-sm">
-                    <optgroup label="Línea de 4 Defensas (Clásicas)">
-                        <option value="433-of">4-3-3 Ofensivo (Fetiche FIFA)</option>
-                        <option value="433-cont">4-3-3 Contención</option>
-                        <option value="433-f9">4-3-3 Falso 9</option>
+    <main class="max-w-5xl mx-auto p-4 flex-1 w-full mt-4 mb-10">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-6">
+            <div>
+                <h2 class="text-3xl font-black uppercase tracking-wide flex items-center gap-2">
+                    <i class="fas fa-layer-group text-green-400"></i> Laboratorio Táctico
+                </h2>
+                <div class="flex items-center gap-3 mt-2">
+                    <label class="text-xs text-gray-400 uppercase font-black tracking-widest pl-1">Esquema:</label>
+                    <select id="selector-formacion" onchange="renderizarCampo(this.value)" class="bg-gray-900 border border-gray-700 text-white rounded-lg px-3 py-1 font-bold focus:outline-none focus:border-green-500 cursor-pointer text-sm">
+                        <option value="433-of">4-3-3 Ofensivo</option>
                         <option value="442-cl">4-4-2 Clásico</option>
-                        <option value="4231-ab">4-2-3-1 Abierto</option>
-                        <option value="41212-ce">4-1-2-1-2 Rombo Cerrado</option>
-                    </optgroup>
-                    <optgroup label="Línea de 3 Defensas (Ofensivas)">
                         <option value="352-ca">3-5-2 Carrileros</option>
-                        <option value="343-pl">3-4-3 Plano</option>
-                    </optgroup>
-                    <optgroup label="Línea de 5 Defensas (Ultradefensivas)">
-                        <option value="5212-ca">5-2-1-2 Ultra</option>
-                    </optgroup>
-                </select>
+                        <option value="4231-ab">4-2-3-1 Abierto</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 🔥 PANEL CALCULADORA OVR EN VIVO -->
+            <div id="stats-panel" class="hidden md:flex gap-4 bg-gray-900 border border-gray-800 p-3 rounded-2xl shadow-xl mt-4 md:mt-0">
+                <div class="text-center px-4 border-r border-gray-800">
+                    <span class="block text-[10px] text-gray-500 uppercase font-bold tracking-widest">OVR General</span>
+                    <span id="calc-ovr" class="text-2xl font-black text-yellow-500">0</span>
+                </div>
+                <div class="text-center px-4 border-r border-gray-800">
+                    <span class="block text-[10px] text-gray-500 uppercase font-bold tracking-widest">Edad Media</span>
+                    <span id="calc-edad" class="text-2xl font-black text-white">0</span>
+                </div>
+                <div class="text-center px-4">
+                    <span class="block text-[10px] text-gray-500 uppercase font-bold tracking-widest">Valor Plantilla</span>
+                    <span id="calc-valor" class="text-2xl font-black text-green-400 font-mono">€0</span>
+                </div>
             </div>
         </div>
 
@@ -94,7 +78,6 @@
                 <div class="penalty-box-top"></div>
                 <div class="penalty-box-bottom"></div>
             </div>
-
             <div id="canvas-tactico" class="w-full h-full relative"></div>
         </div>
     </main>
@@ -106,127 +89,69 @@
                 nombre: "{{ j['Nombre'] }}",
                 pos: "{{ j.get('Posición', 'POS') }}",
                 media: {{ j['Media'] }},
+                edad: {{ j['Edad'] }},
+                valor: {{ j.get('Valor Real (€)', 0) }},
                 foto: "{{ j.get('Foto', '') }}"
             }{% if not loop.last %},{% endif %}
             {% endfor %}
         ];
 
         const basesFormaciones = {
-            '433-of': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 },
-                { r: 'MC', t: 52, l: 32 }, { r: 'MC', t: 52, l: 68 }, { r: 'MCO', t: 36, l: 50 },
-                { r: 'EI', t: 16, l: 15 }, { r: 'DC', t: 14, l: 50 }, { r: 'ED', t: 16, l: 85 }
-            ],
-            '433-cont': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 },
-                { r: 'MCD', t: 58, l: 50 }, { r: 'MC', t: 44, l: 30 }, { r: 'MC', t: 44, l: 70 },
-                { r: 'EI', t: 16, l: 15 }, { r: 'DC', t: 14, l: 50 }, { r: 'ED', t: 16, l: 85 }
-            ],
-            '433-f9': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 },
-                { r: 'MCD', t: 58, l: 50 }, { r: 'MC', t: 44, l: 28 }, { r: 'MC', t: 44, l: 72 },
-                { r: 'EI', t: 16, l: 18 }, { r: 'SD', t: 25, l: 50 }, { r: 'ED', t: 16, l: 82 }
-            ],
-            '442-cl': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 },
-                { r: 'MI', t: 46, l: 15 }, { r: 'MC', t: 48, l: 38 }, { r: 'MC', t: 48, l: 62 }, { r: 'MD', t: 46, l: 85 },
-                { r: 'DC', t: 16, l: 35 }, { r: 'DC', t: 16, l: 65 }
-            ],
-            '4231-ab': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 },
-                { r: 'MCD', t: 58, l: 35 }, { r: 'MCD', t: 58, l: 65 },
-                { r: 'MI', t: 36, l: 15 }, { r: 'MCO', t: 34, l: 50 }, { r: 'MD', t: 36, l: 85 },
-                { r: 'DC', t: 14, l: 50 }
-            ],
-            '41212-ce': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 },
-                { r: 'MCD', t: 60, l: 50 }, { r: 'MC', t: 46, l: 30 }, { r: 'MC', t: 46, l: 70 }, { r: 'MCO', t: 32, l: 50 },
-                { r: 'DC', t: 16, l: 35 }, { r: 'DC', t: 16, l: 65 }
-            ],
-            '352-ca': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'DFC', t: 75, l: 26 }, { r: 'DFC', t: 77, l: 50 }, { r: 'DFC', t: 75, l: 74 },
-                { r: 'MCD', t: 56, l: 35 }, { r: 'MCD', t: 56, l: 65 },
-                { r: 'MI', t: 42, l: 12 }, { r: 'MCO', t: 34, l: 50 }, { r: 'MD', t: 42, l: 88 },
-                { r: 'DC', t: 16, l: 35 }, { r: 'DC', t: 16, l: 65 }
-            ],
-            '343-pl': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'DFC', t: 75, l: 26 }, { r: 'DFC', t: 77, l: 50 }, { r: 'DFC', t: 75, l: 74 },
-                { r: 'MI', t: 46, l: 15 }, { r: 'MC', t: 48, l: 38 }, { r: 'MC', t: 48, l: 62 }, { r: 'MD', t: 46, l: 85 },
-                { r: 'EI', t: 16, l: 20 }, { r: 'DC', t: 14, l: 50 }, { r: 'ED', t: 16, l: 80 }
-            ],
-            '5212-ca': [
-                { r: 'POR', t: 90, l: 50 },
-                { r: 'CAI', t: 66, l: 12 }, { r: 'DFC', t: 76, l: 30 }, { r: 'DFC', t: 78, l: 50 }, { r: 'DFC', t: 76, l: 70 }, { r: 'CAD', t: 66, l: 88 },
-                { r: 'MC', t: 50, l: 35 }, { r: 'MC', t: 50, l: 65 }, { r: 'MCO', t: 32, l: 50 },
-                { r: 'DC', t: 16, l: 35 }, { r: 'DC', t: 16, l: 65 }
-            ]
+            '433-of': [{ r: 'POR', t: 90, l: 50 }, { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 }, { r: 'MC', t: 52, l: 32 }, { r: 'MC', t: 52, l: 68 }, { r: 'MCO', t: 36, l: 50 }, { r: 'EI', t: 16, l: 15 }, { r: 'DC', t: 14, l: 50 }, { r: 'ED', t: 16, l: 85 }],
+            '442-cl': [{ r: 'POR', t: 90, l: 50 }, { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 }, { r: 'MI', t: 46, l: 15 }, { r: 'MC', t: 48, l: 38 }, { r: 'MC', t: 48, l: 62 }, { r: 'MD', t: 46, l: 85 }, { r: 'DC', t: 16, l: 35 }, { r: 'DC', t: 16, l: 65 }],
+            '352-ca': [{ r: 'POR', t: 90, l: 50 }, { r: 'DFC', t: 75, l: 26 }, { r: 'DFC', t: 77, l: 50 }, { r: 'DFC', t: 75, l: 74 }, { r: 'MCD', t: 56, l: 35 }, { r: 'MCD', t: 56, l: 65 }, { r: 'MI', t: 42, l: 12 }, { r: 'MCO', t: 34, l: 50 }, { r: 'MD', t: 42, l: 88 }, { r: 'DC', t: 16, l: 35 }, { r: 'DC', t: 16, l: 65 }],
+            '4231-ab': [{ r: 'POR', t: 90, l: 50 }, { r: 'LI', t: 72, l: 15 }, { r: 'DFC', t: 76, l: 38 }, { r: 'DFC', t: 76, l: 62 }, { r: 'LD', t: 72, l: 85 }, { r: 'MCD', t: 58, l: 35 }, { r: 'MCD', t: 58, l: 65 }, { r: 'MI', t: 36, l: 15 }, { r: 'MCO', t: 34, l: 50 }, { r: 'MD', t: 36, l: 85 }, { r: 'DC', t: 14, l: 50 }]
         };
 
         let memoriaAsignaciones = {};
 
+        function recalcularEstadisticas() {
+            let sumOvr = 0, sumEdad = 0, sumValor = 0, count = 0;
+            Object.values(memoriaAsignaciones).forEach(nombre => {
+                const j = misJugadores.find(m => m.nombre === nombre);
+                if(j) { sumOvr += j.media; sumEdad += j.edad; sumValor += j.valor; count++; }
+            });
+
+            const panel = document.getElementById('stats-panel');
+            if(count > 0) {
+                panel.classList.remove('hidden');
+                document.getElementById('calc-ovr').innerText = Math.round(sumOvr / count);
+                document.getElementById('calc-edad').innerText = (sumEdad / count).toFixed(1);
+                document.getElementById('calc-valor').innerText = '€' + sumValor.toLocaleString('es-ES');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
         function renderizarCampo(esquemaKey) {
             const canvas = document.getElementById('canvas-tactico');
             canvas.innerHTML = ''; 
-            
             const posiciones = basesFormaciones[esquemaKey];
             
             posiciones.forEach((pos, index) => {
                 const idSlot = `slot-${index}`;
                 const asignadoAnteriormente = memoriaAsignaciones[idSlot] || null;
-                
                 let jData = asignadoAnteriormente ? misJugadores.find(m => m.nombre === asignadoAnteriormente) : null;
-
-                // 🔍 FILTRADO INTELIGENTE: Separar en sugeridos (misma posición) y otros
                 const sugeridos = misJugadores.filter(j => j.pos.toLowerCase().includes(pos.r.toLowerCase()));
                 const otros = misJugadores.filter(j => !j.pos.toLowerCase().includes(pos.r.toLowerCase()));
 
                 const div = document.createElement('div');
-                div.className = 'tactical-slot';
-                div.id = idSlot;
-                div.style.top = `${pos.t}%`;
-                div.style.left = `${pos.l}%`;
+                div.className = 'tactical-slot'; div.id = idSlot; div.style.top = `${pos.t}%`; div.style.left = `${pos.l}%`;
 
-                // Construcción limpia y forzada de las opciones con estilos inline anti-bugs
                 let optionsHtml = `<option value="" style="background-color: #111827; color: #ffffff;">Seleccionar...</option>`;
-                
                 if (sugeridos.length > 0) {
-                    optionsHtml += `<optgroup label="Sugeridos (${pos.r})" style="background-color: #111827; color: #4def7d; font-weight: bold;">`;
+                    optionsHtml += `<optgroup label="Sugeridos (${pos.r})" style="background-color: #111827; color: #4def7d;">`;
                     sugeridos.forEach(j => {
-                        const isCurrent = asignadoAnteriormente === j.nombre;
-                        const isUsedElsewhere = Object.values(memoriaAsignaciones).includes(j.nombre) && !isCurrent;
-                        
-                        optionsHtml += `
-                            <option value="${j.nombre}" 
-                                    style="background-color: #111827; color: ${isUsedElsewhere ? '#4b5563' : '#ffffff'};" 
-                                    ${isCurrent ? 'selected' : ''} 
-                                    ${isUsedElsewhere ? 'disabled' : ''}>
-                                ${j.nombre} (${j.pos}) ${isUsedElsewhere ? '🔒 [En uso]' : ''}
-                            </option>`;
+                        const isUsedElsewhere = Object.values(memoriaAsignaciones).includes(j.nombre) && asignadoAnteriormente !== j.nombre;
+                        optionsHtml += `<option value="${j.nombre}" style="background-color: #111827; color: ${isUsedElsewhere ? '#4b5563' : '#ffffff'};" ${asignadoAnteriormente === j.nombre ? 'selected' : ''} ${isUsedElsewhere ? 'disabled' : ''}>${j.nombre} (${j.pos})</option>`;
                     });
                     optionsHtml += `</optgroup>`;
                 }
-                
                 if (otros.length > 0) {
-                    optionsHtml += `<optgroup label="Otros de tu Libreta" style="background-color: #111827; color: #9ca3af; font-weight: bold;">`;
+                    optionsHtml += `<optgroup label="Otros de tu Libreta" style="background-color: #111827; color: #9ca3af;">`;
                     otros.forEach(j => {
-                        const isCurrent = asignadoAnteriormente === j.nombre;
-                        const isUsedElsewhere = Object.values(memoriaAsignaciones).includes(j.nombre) && !isCurrent;
-                        
-                        optionsHtml += `
-                            <option value="${j.nombre}" 
-                                    style="background-color: #111827; color: ${isUsedElsewhere ? '#4b5563' : '#ffffff'};" 
-                                    ${isCurrent ? 'selected' : ''} 
-                                    ${isUsedElsewhere ? 'disabled' : ''}>
-                                ${j.nombre} (${j.pos}) ${isUsedElsewhere ? '🔒 [En uso]' : ''}
-                            </option>`;
+                        const isUsedElsewhere = Object.values(memoriaAsignaciones).includes(j.nombre) && asignadoAnteriormente !== j.nombre;
+                        optionsHtml += `<option value="${j.nombre}" style="background-color: #111827; color: ${isUsedElsewhere ? '#4b5563' : '#ffffff'};" ${asignadoAnteriormente === j.nombre ? 'selected' : ''} ${isUsedElsewhere ? 'disabled' : ''}>${j.nombre} (${j.pos})</option>`;
                     });
                     optionsHtml += `</optgroup>`;
                 }
@@ -234,41 +159,28 @@
                 div.innerHTML = `
                     <div class="player-card-ui w-20 h-24 sm:w-22 sm:h-26 bg-gray-950/95 border-2 ${jData ? 'border-green-500 bg-gradient-to-b from-gray-800 to-gray-900' : 'border-gray-800'} rounded-xl flex flex-col items-center justify-center p-1 shadow-2xl relative transition-all duration-300">
                         <span class="absolute top-1 left-1 text-[8px] font-black tracking-tighter text-gray-500 bg-gray-900 px-1 rounded">${pos.r}</span>
-                        
-                        <div class="w-8 h-8 bg-gray-900 rounded-full mb-1 flex items-center justify-center overflow-hidden border border-gray-800 player-foto-box">
+                        <div class="w-8 h-8 bg-gray-900 rounded-full mb-1 flex items-center justify-center overflow-hidden border border-gray-800">
                             ${jData ? `<img src="${jData.foto}" class="w-full h-full object-cover">` : '<i class="fas fa-user text-gray-700 text-xs"></i>'}
                         </div>
-                        <div class="text-white font-black text-[9px] uppercase text-center w-full truncate player-name-box">${jData ? jData.nombre : 'Vacío'}</div>
-                        <div class="text-yellow-500 font-black text-xs player-ovr-box">${jData ? jData.media : '-'}</div>
-                        
-                        <select data-slot="${idSlot}" 
-                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-white" 
-                                style="background-color: #111827;"
-                                onchange="asignarSlot(this)">
+                        <div class="text-white font-black text-[9px] uppercase text-center w-full truncate">${jData ? jData.nombre : 'Vacío'}</div>
+                        <div class="text-yellow-500 font-black text-xs">${jData ? jData.media : '-'}</div>
+                        <select data-slot="${idSlot}" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="asignarSlot(this)">
                             ${optionsHtml}
                         </select>
-                    </div>
-                `;
+                    </div>`;
                 canvas.appendChild(div);
             });
+            recalcularEstadisticas();
         }
 
         function asignarSlot(selectElement) {
             const slotId = selectElement.dataset.slot;
-            const value = selectElement.value;
-            
-            if(value) {
-                memoriaAsignaciones[slotId] = value;
-            } else {
-                delete memoriaAsignaciones[slotId];
-            }
-            
+            if(selectElement.value) memoriaAsignaciones[slotId] = selectElement.value;
+            else delete memoriaAsignaciones[slotId];
             renderizarCampo(document.getElementById('selector-formacion').value);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderizarCampo('433-of');
-        });
+        document.addEventListener('DOMContentLoaded', () => renderizarCampo('433-of'));
     </script>
 </body>
 </html>
