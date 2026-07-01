@@ -51,8 +51,55 @@ def perfil_jugador(nombre):
         es_favorito = False
         if jugador_db:
             es_favorito = Favorito.query.filter_by(user_id=current_user.id, jugador_id=jugador_db.id).first() is not None
+
+        # 🔥 NUEVO ALGORITMO: PLAN DE DESARROLLO Y ENTRENAMIENTO 🔥
+        pos = jugador_encontrado.get('Posición', 'POS')
+        edad = int(jugador_encontrado.get('Edad', 20))
+        margen = int(jugador_encontrado.get('Margen de Crecimiento', 0))
+
+        # 1. Rol Táctico Recomendado
+        roles_meta = {
+            'POR': ['Portero Gato', 'Reflejos y Estirada'],
+            'DFC': ['Defensa de Toque', 'Pase y Regate defensivo'],
+            'LD': ['Carrilero Ofensivo', 'Ritmo y Centros'],
+            'LI': ['Carrilero Ofensivo', 'Ritmo y Centros'],
+            'MCD': ['Pivote Destructor', 'Físico y Defensa'],
+            'MC': ['Box-to-Box', 'Resistencia y Llegada'],
+            'MCO': ['Atacante en la Sombra', 'Tiro y Aceleración'],
+            'ED': ['Extremo Invertido', 'Tiro y Regate'],
+            'EI': ['Extremo Invertido', 'Tiro y Regate'],
+            'DC': ['Cazagoles', 'Finalización y Posicionamiento']
+        }
+        
+        rol_data = roles_meta.get(pos, ['Equilibrado', 'Todas las estadísticas'])
+        
+        # 2. Intensidad y Tiempo para subir +1 OVR
+        if edad <= 22 and margen >= 5:
+            intensidad = "Alta Intensidad (Acelerado)"
+            color_int = "text-red-500"
+            semanas = max(2, 6 - (margen // 3)) # Sube rapidísimo (2-4 semanas)
+        elif margen > 0:
+            intensidad = "Desarrollo Normal"
+            color_int = "text-green-500"
+            semanas = 5 + (edad - 20) // 2 # Sube a ritmo estándar (5-8 semanas)
+        else:
+            intensidad = "Plan de Conservación"
+            color_int = "text-yellow-500"
+            semanas = "Máx. Potencial Alcanzado"
+
+        plan_entrenamiento = {
+            "rol": rol_data[0],
+            "enfoque": rol_data[1],
+            "intensidad": intensidad,
+            "color_int": color_int,
+            "semanas": semanas
+        }
                 
-        return render_template('perfil.html', jugador=jugador_encontrado, tier=tier_actual, es_favorito=es_favorito)
+        return render_template('perfil.html', 
+                               jugador=jugador_encontrado, 
+                               tier=tier_actual, 
+                               es_favorito=es_favorito,
+                               plan=plan_entrenamiento) # Pasamos el plan al HTML
         
     except Exception as e:
         import traceback
