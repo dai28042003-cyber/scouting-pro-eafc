@@ -126,15 +126,11 @@ def mi_perfil():
     total_favoritos = Favorito.query.filter_by(user_id=current_user.id).count()
     return render_template('mi_perfil.html', tier=tier_actual, total_favoritos=total_favoritos)
 
-# -------------------------------------------------------------------
-# NUEVA RUTA: INFORME DE OJEADOR IA (MISIÓN B)
-# -------------------------------------------------------------------
 @carrera_bp.route('/api/informe-ia/<nombre>')
 @login_required
 def informe_ia(nombre):
     tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
     
-    # 1. Filtro de exclusividad: Solo VIPs
     if tier_actual not in ['Profesional', 'Clase Mundial']:
         return jsonify({"error": "🔒 Acceso Denegado. Mejora tu licencia a VIP para contactar con el Ojeador IA."}), 403
         
@@ -142,14 +138,12 @@ def informe_ia(nombre):
     if not jugador:
         return jsonify({"error": "Jugador no encontrado."}), 404
 
-    # 2. Configurar llave de Gemini
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         return jsonify({"error": "Error del servidor: API Key no configurada."}), 500
         
     genai.configure(api_key=api_key)
     
-    # 3. El Prompt del Director Deportivo
     prompt = f"""
     Actúa como el Ojeador Jefe de un club de fútbol de élite. Redacta un informe de ojeo directo, clínico y profesional sobre esta promesa (máximo 120 palabras). 
     
@@ -169,15 +163,32 @@ def informe_ia(nombre):
     """
     
     try:
-        # 🔥 AQUÍ ESTÁ LA CORRECCIÓN A 2.5 FLASH
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         
-        # Limpiamos el texto para inyectarlo en el HTML directamente
         texto_limpio = response.text.replace('```html', '').replace('```', '').strip()
         texto_limpio = texto_limpio.replace('\n', '<br>')
         
         return jsonify({"informe": texto_limpio})
     except Exception as e:
-        # Volvemos a poner la capa de camuflaje para los errores
         return jsonify({"error": "El ojeador está ocupado analizando a otros talentos. Inténtalo de nuevo en unos segundos."}), 500
+
+# -------------------------------------------------------------------
+# RUTA DE LA PIZARRA TÁCTICA
+# -------------------------------------------------------------------
+@carrera_bp.route('/pizarra')
+@login_required
+def pizarra_tactica():
+    tier_actual = getattr(current_user, 'carrera_tier', current_user.tier)
+    
+    favoritos_db = Favorito.query.filter_by(user_id=current_user.id).all()
+    ids_guardados = [fav.jugador_id for fav in favoritos_db]
+    
+    jugadores_db = Jugador.query.filter(Jugador.id.in_(ids_guardados)).all()
+    nombres_guardados = [j.nombre for j in jugadores_db]
+    
+    mis_jugadores = [j for j in datos_reales if j['Nombre'] in nombres_guardados]
+
+    return render_template('pizarra.html', 
+                           tier=tier_actual, 
+                           jugadores=mis_jugadores)
