@@ -169,7 +169,8 @@ def informe_ia(nombre):
     """
     
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # 🔥 AQUÍ ESTÁ LA CORRECCIÓN A 2.5 FLASH
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         
         # Limpiamos el texto para inyectarlo en el HTML directamente
@@ -178,5 +179,5 @@ def informe_ia(nombre):
         
         return jsonify({"informe": texto_limpio})
     except Exception as e:
-        # 🔥 QUitamos el mensaje amistoso temporalmente para ver qué falla:
-        return jsonify({"error": f"Error de Google: {str(e)}"}), 500
+        # Volvemos a poner la capa de camuflaje para los errores
+        return jsonify({"error": "El ojeador está ocupado analizando a otros talentos. Inténtalo de nuevo en unos segundos."}), 500
