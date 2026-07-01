@@ -34,7 +34,6 @@
             position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
             width: 240px; height: 110px; border: 2px solid rgba(255,255,255,0.2); border-bottom: none;
         }
-        /* Transición suave para el movimiento de las cartas estilo FIFA */
         .tactical-slot {
             position: absolute;
             transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
@@ -57,7 +56,7 @@
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-4 flex-1 w-full mt-4 mb-10">
+    <main class="max-w-4xl mx-auto p-4 flex-1 w-full mt-4 mb-10">
         <div class="text-center mb-6">
             <h2 class="text-4xl font-black uppercase tracking-wide flex justify-center items-center gap-3">
                 <i class="fas fa-layer-group text-green-400"></i> Ajuste Táctico Real
@@ -112,7 +111,6 @@
             {% endfor %}
         ];
 
-        // MOTOR DE COORDENADAS (TOP %, LEFT %) DE LAS FORMACIONES DE FIFA
         const basesFormaciones = {
             '433-of': [
                 { r: 'POR', t: 90, l: 50 },
@@ -172,7 +170,6 @@
             ]
         };
 
-        // Guardamos las elecciones de los jugadores para que no se borren al mover la táctica
         let memoriaAsignaciones = {};
 
         function renderizarCampo(esquemaKey) {
@@ -187,11 +184,52 @@
                 
                 let jData = asignadoAnteriormente ? misJugadores.find(m => m.nombre === asignadoAnteriormente) : null;
 
+                // 🔍 FILTRADO INTELIGENTE: Separar en sugeridos (misma posición) y otros
+                const sugeridos = misJugadores.filter(j => j.pos.toLowerCase().includes(pos.r.toLowerCase()));
+                const otros = misJugadores.filter(j => !j.pos.toLowerCase().includes(pos.r.toLowerCase()));
+
                 const div = document.createElement('div');
                 div.className = 'tactical-slot';
                 div.id = idSlot;
                 div.style.top = `${pos.t}%`;
                 div.style.left = `${pos.l}%`;
+
+                // Construcción limpia y forzada de las opciones con estilos inline anti-bugs
+                let optionsHtml = `<option value="" style="background-color: #111827; color: #ffffff;">Seleccionar...</option>`;
+                
+                if (sugeridos.length > 0) {
+                    optionsHtml += `<optgroup label="Sugeridos (${pos.r})" style="background-color: #111827; color: #4def7d; font-weight: bold;">`;
+                    sugeridos.forEach(j => {
+                        const isCurrent = asignadoAnteriormente === j.nombre;
+                        const isUsedElsewhere = Object.values(memoriaAsignaciones).includes(j.nombre) && !isCurrent;
+                        
+                        optionsHtml += `
+                            <option value="${j.nombre}" 
+                                    style="background-color: #111827; color: ${isUsedElsewhere ? '#4b5563' : '#ffffff'};" 
+                                    ${isCurrent ? 'selected' : ''} 
+                                    ${isUsedElsewhere ? 'disabled' : ''}>
+                                ${j.nombre} (${j.pos}) ${isUsedElsewhere ? '🔒 [En uso]' : ''}
+                            </option>`;
+                    });
+                    optionsHtml += `</optgroup>`;
+                }
+                
+                if (otros.length > 0) {
+                    optionsHtml += `<optgroup label="Otros de tu Libreta" style="background-color: #111827; color: #9ca3af; font-weight: bold;">`;
+                    otros.forEach(j => {
+                        const isCurrent = asignadoAnteriormente === j.nombre;
+                        const isUsedElsewhere = Object.values(memoriaAsignaciones).includes(j.nombre) && !isCurrent;
+                        
+                        optionsHtml += `
+                            <option value="${j.nombre}" 
+                                    style="background-color: #111827; color: ${isUsedElsewhere ? '#4b5563' : '#ffffff'};" 
+                                    ${isCurrent ? 'selected' : ''} 
+                                    ${isUsedElsewhere ? 'disabled' : ''}>
+                                ${j.nombre} (${j.pos}) ${isUsedElsewhere ? '🔒 [En uso]' : ''}
+                            </option>`;
+                    });
+                    optionsHtml += `</optgroup>`;
+                }
 
                 div.innerHTML = `
                     <div class="player-card-ui w-20 h-24 sm:w-22 sm:h-26 bg-gray-950/95 border-2 ${jData ? 'border-green-500 bg-gradient-to-b from-gray-800 to-gray-900' : 'border-gray-800'} rounded-xl flex flex-col items-center justify-center p-1 shadow-2xl relative transition-all duration-300">
@@ -203,9 +241,11 @@
                         <div class="text-white font-black text-[9px] uppercase text-center w-full truncate player-name-box">${jData ? jData.nombre : 'Vacío'}</div>
                         <div class="text-yellow-500 font-black text-xs player-ovr-box">${jData ? jData.media : '-'}</div>
                         
-                        <select data-slot="${idSlot}" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="asignarSlot(this)">
-                            <option value="">Seleccionar...</option>
-                            ${misJugadores.map(j => `<option value="${j.nombre}" ${asignadoAnteriormente === j.nombre ? 'selected' : ''}>${j.nombre} (${j.pos})</option>`).join('')}
+                        <select data-slot="${idSlot}" 
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-white" 
+                                style="background-color: #111827;"
+                                onchange="asignarSlot(this)">
+                            ${optionsHtml}
                         </select>
                     </div>
                 `;
@@ -223,11 +263,9 @@
                 delete memoriaAsignaciones[slotId];
             }
             
-            // Re-renderizamos para aplicar fotos y estilos conservando la animación
             renderizarCampo(document.getElementById('selector-formacion').value);
         }
 
-        // Carga inicial
         document.addEventListener('DOMContentLoaded', () => {
             renderizarCampo('433-of');
         });

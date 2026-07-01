@@ -33,19 +33,16 @@
                     <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-xs font-bold uppercase">{{ tier }}</span>
                 {% endif %}
 
-                <!-- 🔥 BOTÓN DEL COMPARADOR -->
                 {% if tier != 'Aficionado' %}
                 <a href="/comparar" class="text-gray-400 hover:text-green-300 font-bold transition text-sm uppercase tracking-wider hidden sm:inline-block">
                     <i class="fas fa-chart-pie text-green-500 mr-1"></i> Comparador
                 </a>
                 {% endif %}
 
-                <!-- 🔥 NUEVO BOTÓN: LA PIZARRA TÁCTICA -->
                 <a href="/pizarra" class="text-gray-400 hover:text-white font-bold transition text-sm uppercase tracking-wider hidden sm:inline-block">
                     <i class="fas fa-chess-board text-green-500 mr-1"></i> Pizarra
                 </a>
                 
-                <!-- 🔥 BOTÓN: MI DESPACHO -->
                 <a href="/mi-perfil" class="text-gray-400 hover:text-white font-bold transition text-sm uppercase tracking-wider hidden sm:inline-block">
                     <i class="fas fa-user-tie text-gray-400 mr-1"></i> Despacho
                 </a>
@@ -195,12 +192,15 @@
 
                 playerCards.forEach(card => {
                     const cardName = card.dataset.nombre;
-                    const cardPos = card.dataset.posicion;
+                    const cardPos = card.dataset.posicion.toLowerCase(); // Pasamos a minúsculas
                     const cardEdad = parseInt(card.dataset.edad);
                     const cardPot = parseInt(card.dataset.potencial);
 
                     const matchName = cardName.includes(search);
-                    const matchPos = pos === 'ALL' || cardPos === pos;
+                    
+                    // 🌟 CORRECCIÓN CRÍTICA: Ahora evalúa si la posición buscada está incluida en el string multi-posición
+                    const matchPos = pos === 'ALL' || cardPos.includes(pos.toLowerCase());
+                    
                     const matchEdad = cardEdad <= maxEdad;
                     const matchPot = cardPot >= minPot;
 
