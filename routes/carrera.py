@@ -178,4 +178,5 @@ def informe_ia(nombre):
         
         return jsonify({"informe": texto_limpio})
     except Exception as e:
-        return jsonify({"error": "El ojeador está ocupado analizando a otros talentos. Inténtalo de nuevo en unos segundos."}), 500
+        # 🔥 QUitamos el mensaje amistoso temporalmente para ver qué falla:
+        return jsonify({"error": f"Error de Google: {str(e)}"}), 500
